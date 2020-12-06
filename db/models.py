@@ -1,6 +1,5 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, TIMESTAMP, DateTime, CheckConstraint, Time, Date
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, CheckConstraint, Time, Date
 from sqlalchemy.orm import relationship
-from datetime import datetime
 
 from .database import Base, utcnow
 
