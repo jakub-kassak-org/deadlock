@@ -35,8 +35,8 @@ class Rule(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, nullable=True)
     allow = Column(Boolean, server_default="False", nullable=False)
-    # access_point_id = Column(Integer, ...)
-    # time_spec_id = Column(Integer, ...
+    ap_type_id = Column(Integer, ForeignKey('access_point_type.id'), nullable=False)
+    time_spec_id = Column(Integer, ForeignKey('time_spec.id'), nullable=False)
     priority = Column('priority', Integer, CheckConstraint('0 <= priority AND priority <= 10'), nullable=False, server_default='5')
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
@@ -69,10 +69,76 @@ class TimeSpec(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String, server_default='rule')
+    # Day number i if (weekday_mask & (1 << i)), 0 is monday
     weekday_mask = Column('weekday_mask', Integer, CheckConstraint('0 <= weekday_mask AND weekday_mask <= 255'), nullable=False)
     time_from = Column(Time, nullable=False)
     time_to = Column(Time, nullable=False)
     date_from = Column(Date, nullable=False, server_default=utcnow())
     date_to = Column(Date, nullable=False)  # TODO server_default?
+    created = Column(DateTime, server_default=utcnow())
+    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
+
+
+class AccessPointType(Base):
+    __tablename__ = 'access_point_type'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String)
+    created = Column(DateTime, server_default=utcnow())
+    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
+
+
+class AccessPoint(Base):
+    __tablename__ = 'access_point'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String)
+    type_id = Column(Integer, ForeignKey('access_point_type.id'), nullable=False)
+    controller_id = Column(Integer, ForeignKey('controllers.id'), nullable=False)
+    created = Column(DateTime, server_default=utcnow())
+    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
+
+
+class Controller(Base):
+    __tablename__ = 'controllers'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    last_seen = Column(DateTime, onupdate=utcnow())
+    db_version = Column(Integer)
+    fw_version = Column(Integer)
+    created = Column(DateTime, server_default=utcnow())
+    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
+
+
+class AccessLog(Base):
+    __tablename__ = 'access_log'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    controller_id = Column(Integer, ForeignKey('controllers.id'), nullable=False)
+    card = Column(String)
+    without_card = Column(Boolean, server_default='False')
+    allowed = Column(Boolean, nullable=False)
+    timestamp = Column(DateTime, server_default=utcnow())
+    created = Column(DateTime, server_default=utcnow())
+    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
+
+
+class ErrorLog(Base):
+    __tablename__ = 'error_log'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    controller_id = Column(Integer, ForeignKey('controllers.id'), nullable=False)
+    error_code = Column(Integer, nullable=False)
+    timestamp = Column(DateTime, server_default=utcnow())
+    created = Column(DateTime, server_default=utcnow())
+    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
+
+
+class ErrorDesc(Base):
+    __tablename__ = 'error_description'
+
+    code = Column(Integer, primary_key=True)
+    ticker = Column(String, unique=True)
+    description = Column(String)
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
