@@ -11,6 +11,7 @@ class User(Base):
     card = Column(String, nullable=False)
     first_name = Column(String)
     last_name = Column(String)
+    disabled = Column(Boolean, default=False)
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())  # TODO Check whether onupdates is correct
 
