@@ -4,9 +4,8 @@ from sqlalchemy.orm import Session
 
 from db import models, crud
 from db.database import SessionLocal, engine
-from db.schemas import User
+from db.schemas import User, Token, TokenData
 
-from pydantic import BaseModel
 from typing import Optional
 
 from passlib.context import CryptContext
@@ -46,29 +45,14 @@ models.Base.metadata.create_all(bind=engine)
 async def get_db():
     db = SessionLocal()
     try:
-        logger.warning(f'\n\n\nget_db\n{db}\n{type(db)}\n\n\n')
         yield db
     finally:
-        logger.warning(f'\n\n\nfinally\n\n\n')
         db.close()
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: Optional[str] = None
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")  # Send username, password to ./token/
-
-
-class UserInDB(User):
-    hashed_password: str
 
 
 def verify_password(plain_password, hashed_password):
@@ -80,10 +64,8 @@ def get_password_hash(password):
 
 
 def authenticate_user(username: str, password: str, db: Session):
-    # db = SessionLocal()
     logger.warning(f'\n\n\nauthenticate_user\n{db}\n{type(db)}\n\n\n')
     user = get_user(db, username)
-    # db.close()
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
