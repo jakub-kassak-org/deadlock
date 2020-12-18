@@ -4,21 +4,26 @@ from sqlalchemy.orm import Session
 
 from db import models, crud
 from db.database import SessionLocal, engine
-# from db.schemas import User, Group
+from db.schemas import User, Token, TokenData
 
-from pydantic import BaseModel
 from typing import Optional
 
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 
-import uvicorn
 from datetime import datetime, timedelta
+
+import logging
+logger = logging.getLogger(__name__)
+
+
+app = FastAPI()
+
 
 # to get a string like this run:
 # openssl rand -hex 32
 # It's for signing JWT tokens
-SECRET_KEY = "c16642a0b550d80bf38c54b62280da0ff5405526a2e50eea708f6cce2f3eca27"
+SECRET_KEY = "c16642a0b550d80bf38c54b62280da0ff5405526a2e50eea708f6cce2f3eca27"  # TODO change when deploying
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -26,26 +31,18 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 models.Base.metadata.create_all(bind=engine)
 
 
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "disabled": False,
-    }
-}
-
-if __name__ == '__main__':
-    uvicorn.run(
-        "main:app",
-        port=8000,
-        host="0.0.0.0",
-        reload=True
-    )
+# fake_users_db = {
+#     "johndoe": {
+#         "username": "johndoe",
+#         "full_name": "John Doe",
+#         "email": "johndoe@example.com",
+#         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
+#         "disabled": False,
+#     }
+# }
 
 
-def get_db():
+async def get_db():
     db = SessionLocal()
     try:
         yield db
@@ -53,32 +50,9 @@ def get_db():
         db.close()
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: Optional[str] = None
-
-
-class User(BaseModel):
-    username: str
-    email: Optional[str] = None
-    full_name: Optional[str] = None
-    disabled: Optional[bool] = None
-
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")  # Send username, password to ./token/
-
-
-class UserInDB(User):
-    hashed_password: str
-
-
-app = FastAPI()
 
 
 def verify_password(plain_password, hashed_password):
@@ -89,9 +63,11 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def authenticate_user(fake_db, username: str, password: str):
-    user = get_user(fake_db, username)
+def authenticate_user(username: str, password: str, db: Session):
+    user = get_user(db, username)
     if not user:
+        return False
+    if not user.is_staff or user.disabled:
         return False
     if not verify_password(password, user.hashed_password):
         return False
@@ -109,24 +85,14 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-def fake_hash_password(password: str):
-    return "fakehashed" + password
-
-
 def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
+    user = crud.get_user_by_username(db, username)
+    if user:
+        return user
+    return None
 
 
-def fake_decode_token(token):
-    # This doesn't provide any security at all
-    # Check the next version
-    user = get_user(fake_users_db, token)
-    return user
-
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -140,7 +106,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(db, username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -158,9 +124,18 @@ async def root():
 
 
 @app.get('/users')
-async def get_users(offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+async def get_users(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    not_allowed_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="User not allowed to perform this action",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    if not current_user:
+        raise not_allowed_exception
+    if not current_user.is_staff:
+        raise not_allowed_exception
     users = crud.get_users(db)
-    return users
+    return {'users': users}
 
 
 @app.get("/groups/")
@@ -169,8 +144,8 @@ async def read_items(token: str = Depends(oauth2_scheme)):
 
 
 @app.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

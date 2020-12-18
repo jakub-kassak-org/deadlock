@@ -8,9 +8,12 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    username = Column(String, nullable=False)
     card = Column(String, nullable=False)
     first_name = Column(String)
     last_name = Column(String)
+    is_staff = Column(Boolean, nullable=False, default=False)
+    hashed_password = Column(String, nullable=True)
     disabled = Column(Boolean, default=False)
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())  # TODO Check whether onupdates is correct
