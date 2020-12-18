@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from db import models, crud
 from db.database import SessionLocal, engine
-from db.schemas import User, Group
+from db.schemas import User
 
 from pydantic import BaseModel
 from typing import Optional
@@ -12,8 +12,14 @@ from typing import Optional
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 
-import uvicorn
 from datetime import datetime, timedelta
+
+import logging
+logger = logging.getLogger(__name__)
+
+
+app = FastAPI()
+
 
 # to get a string like this run:
 # openssl rand -hex 32
@@ -37,11 +43,13 @@ models.Base.metadata.create_all(bind=engine)
 # }
 
 
-def get_db():
+async def get_db():
     db = SessionLocal()
     try:
+        logger.warning(f'\n\n\nget_db\n{db}\n{type(db)}\n\n\n')
         yield db
     finally:
+        logger.warning(f'\n\n\nfinally\n\n\n')
         db.close()
 
 
@@ -63,9 +71,6 @@ class UserInDB(User):
     hashed_password: str
 
 
-app = FastAPI()
-
-
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -74,8 +79,11 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def authenticate_user(username: str, password: str, db: Session = Depends(get_db)):
+def authenticate_user(username: str, password: str, db: Session):
+    # db = SessionLocal()
+    logger.warning(f'\n\n\nauthenticate_user\n{db}\n{type(db)}\n\n\n')
     user = get_user(db, username)
+    # db.close()
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -95,9 +103,11 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
+    user = crud.get_user_by_username(db, username)
+    if user:
+        return user
+    return None
+    # return UserInDB(**user_dict)
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
@@ -144,7 +154,7 @@ async def read_items(token: str = Depends(oauth2_scheme)):
 
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = authenticate_user(form_data.username, form_data.password)
+    user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
