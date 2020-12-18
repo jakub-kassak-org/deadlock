@@ -22,7 +22,10 @@ class GroupRule(BaseModel):
 
 class User(BaseModel):
     id: str
+    first_name: str
+    last_name: str
     active: bool
+    disabled: bool
     groups: List[UserGroup] = []
 
     class Config:
