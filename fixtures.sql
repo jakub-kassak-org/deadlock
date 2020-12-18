@@ -1,4 +1,4 @@
-INSERT INTO users (username, card, first_name, last_name, is_staff, hashed_password, disabled) VALUES ('stlpik', '1234567891011', 'Meno', 'Priezvisko', true, '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', false);
+INSERT INTO users (username, card, first_name, last_name, is_staff, hashed_password, disabled) VALUES ('stlpik', '1234567891011', 'Meno', 'Priezvisko', true, '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', false), ('stud', '1234567891011', 'Meno', 'Priezvisko', false, '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', false);
 INSERT INTO groups (name) VALUES ('LinuxPP');
 INSERT INTO time_spec (title, weekday_mask, time_from, time_to, date_to) VALUES ('pracovne dni vecer', 31, '17:00:00', '22:00:00', '2022-01-01 00:00:00');
 INSERT INTO access_point_type (name) VALUES ('Pocitacove ucebne');

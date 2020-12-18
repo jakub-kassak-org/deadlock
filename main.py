@@ -23,7 +23,7 @@ app = FastAPI()
 # to get a string like this run:
 # openssl rand -hex 32
 # It's for signing JWT tokens
-SECRET_KEY = "c16642a0b550d80bf38c54b62280da0ff5405526a2e50eea708f6cce2f3eca27"
+SECRET_KEY = "c16642a0b550d80bf38c54b62280da0ff5405526a2e50eea708f6cce2f3eca27"  # TODO change when deploying
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -64,9 +64,10 @@ def get_password_hash(password):
 
 
 def authenticate_user(username: str, password: str, db: Session):
-    logger.warning(f'\n\n\nauthenticate_user\n{db}\n{type(db)}\n\n\n')
     user = get_user(db, username)
     if not user:
+        return False
+    if not user.is_staff or user.disabled:
         return False
     if not verify_password(password, user.hashed_password):
         return False
@@ -89,7 +90,6 @@ def get_user(db, username: str):
     if user:
         return user
     return None
-    # return UserInDB(**user_dict)
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
@@ -124,7 +124,16 @@ async def root():
 
 
 @app.get('/users')
-async def get_users(offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+async def get_users(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    not_allowed_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="User not allowed to perform this action",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    if not current_user:
+        raise not_allowed_exception
+    if not current_user.is_staff:
+        raise not_allowed_exception
     users = crud.get_users(db)
     return {'users': users}
 
