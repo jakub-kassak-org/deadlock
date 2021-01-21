@@ -28,8 +28,8 @@ def create_user(db: Session, user_base: schemas.UserBase):
     return user
 
 
-def add_group(db: Session, group: schemas.Group):
-    db_group = models.Group(name=group.title)
+def create_group(db: Session, group: schemas.GroupCreate):
+    db_group = models.Group(name=group.name)
     db.add(db_group)
     db.commit()
     db.refresh(db_group)
@@ -48,3 +48,7 @@ def get_users_from_group(db: Session, group_id: int):
     user_ids = set([x.user_id for x in users_group])
     users = db.query(models.User).filter(models.User.id.in_(user_ids)).all()
     return users
+
+
+def get_group_by_name(db: Session, name: str):
+    return db.query(models.Group).filter(models.Group.name == name).first()

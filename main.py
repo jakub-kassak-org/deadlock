@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from db import models, crud
 from db.database import SessionLocal, engine
-from db.schemas import User, UserBase, Token, TokenData
+from db.schemas import User, UserBase, Token, TokenData, Group, GroupCreate
 
 from typing import Optional
 
@@ -159,6 +159,16 @@ async def get_groups(group_id: int, db: Session = Depends(get_db), current_user:
         'group_id': group_id,
         'users': users_in_group
     }
+
+
+@app.post("/groups", response_model=Group)
+def create_user(group: GroupCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    if not is_user_staff(current_user):
+        raise exceptions.NOT_ALLOWED
+    db_group = crud.get_group_by_name(db=db, name=group.name)
+    if db_group:
+        raise HTTPException(status_code=400, detail="Group with this name already registered")
+    return crud.create_group(db=db, group=group)
 
 
 @app.post("/token", response_model=Token)

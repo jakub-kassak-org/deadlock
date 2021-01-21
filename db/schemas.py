@@ -56,6 +56,14 @@ class Group(BaseModel):
         orm_mode = True
 
 
+class GroupCreate(BaseModel):
+    name: str
+    rules: List[GroupRule] = []
+
+    class Config:
+        orm_mode = True
+
+
 class TimeSpec(BaseModel):
     title: str
     weekday_mask: int
