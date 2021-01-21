@@ -36,7 +36,7 @@ class Rule(Base):
     __tablename__ = 'rules'
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    name = Column(String, nullable=True)
+    name = Column(String, nullable=True, unique=True)
     allow = Column(Boolean, server_default="False", nullable=False)
     ap_type_id = Column(Integer, ForeignKey('access_point_type.id'), nullable=False)
     time_spec_id = Column(Integer, ForeignKey('time_spec.id'), nullable=False)
@@ -86,7 +86,7 @@ class AccessPointType(Base):
     __tablename__ = 'access_point_type'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String)
+    name = Column(String, unique=True)
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
 

@@ -56,12 +56,26 @@ class Group(BaseModel):
         orm_mode = True
 
 
-class TimeSpec(BaseModel):
+class GroupCreate(BaseModel):
+    name: str
+
+    class Config:
+        orm_mode = True
+
+
+class TimeSpecBase(BaseModel):
     title: str
     weekday_mask: int
     time_from: time
     time_to: time
     date_to: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class TimeSpec(TimeSpecBase):
+    id: int
 
     class Config:
         orm_mode = True
@@ -74,12 +88,21 @@ class AccessPointType(BaseModel):
         orm_mode = True
 
 
-class Rule(BaseModel):
-    id: int
-    name: int
+class RuleBase(BaseModel):
+    name: str
     allow: bool
-    time_spec: TimeSpec
-    ap_type: AccessPointType
+    time_spec_id: int
+    ap_type_id: int
+    priority: int
+
+    class Config:
+        orm_mode = True
+
+
+class Rule(RuleBase):
+    id: int
+    created: datetime
+    updated: datetime
     groups: List[GroupRule] = []
 
     class Config:
