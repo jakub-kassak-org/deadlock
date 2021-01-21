@@ -118,12 +118,9 @@ async def root():
     return {'message': 'response'}
 
 
-# TODO propagate limit and offset to crud
 @app.get('/users')
 async def get_users(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    # if not is_user_staff(current_user):
-    #     raise exceptions.NOT_ALLOWED
-    users = crud.get_users(db)
+    users = crud.get_users(db, offset=offset, limit=limit)
     return {'users': users}
 
 
@@ -134,8 +131,6 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 
 @app.post("/users", response_model=User)
 def create_user(user: UserBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    # if not is_user_staff(current_user):
-    #     raise exceptions.NOT_ALLOWED
     db_user = crud.get_user_by_username(db=db, username=user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
@@ -145,20 +140,15 @@ def create_user(user: UserBase, db: Session = Depends(get_db), current_user: Use
     return crud.create_user(db=db, user_base=user)
 
 
-# TODO propagate limit and offset to crud
 @app.get("/groups")
 async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    # if not is_user_staff(current_user):
-    #     raise exceptions.NOT_ALLOWED
-    groups = crud.get_groups(db)
+    groups = crud.get_groups(db, offset=offset, limit=limit)
     return {'groups': groups}
 
 
 # Returns list of users from this group
 @app.get("/groups/{group_id}")
 async def get_groups(group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    # if not is_user_staff(current_user):
-    #     raise exceptions.NOT_ALLOWED
     users_in_group = crud.get_users_from_group(db=db, group_id=group_id)
     if not users_in_group:
         raise HTTPException(status_code=400, detail=f"Group with id {group_id} was not found")
@@ -170,8 +160,6 @@ async def get_groups(group_id: int, db: Session = Depends(get_db), current_user:
 
 @app.post("/groups", response_model=Group)
 def create_group(group: GroupCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    # if not is_user_staff(current_user):
-    #     raise exceptions.NOT_ALLOWED
     db_group = crud.get_group_by_name(db=db, name=group.name)
     if db_group:
         raise HTTPException(status_code=400, detail="Group with this name already registered")
