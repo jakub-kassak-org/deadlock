@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from db import models, crud
 from db.database import SessionLocal, engine
-from db.schemas import User, UserBase, Token, TokenData, Group, GroupCreate
+from db.schemas import User, UserBase, Token, TokenData, Group, GroupCreate, UserGroup
 
 from typing import Optional
 
@@ -118,6 +118,7 @@ async def root():
     return {'message': 'response'}
 
 
+# TODO propagate limit and offset to crud
 @app.get('/users')
 async def get_users(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     if not is_user_staff(current_user):
@@ -139,6 +140,7 @@ def create_user(user: UserBase, db: Session = Depends(get_db), current_user: Use
     return crud.create_user(db=db, user_base=user)
 
 
+# TODO propagate limit and offset to crud
 @app.get("/groups")
 async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     if not is_user_staff(current_user):
@@ -162,13 +164,27 @@ async def get_groups(group_id: int, db: Session = Depends(get_db), current_user:
 
 
 @app.post("/groups", response_model=Group)
-def create_user(group: GroupCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def create_group(group: GroupCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     if not is_user_staff(current_user):
         raise exceptions.NOT_ALLOWED
     db_group = crud.get_group_by_name(db=db, name=group.name)
     if db_group:
         raise HTTPException(status_code=400, detail="Group with this name already registered")
     return crud.create_group(db=db, group=group)
+
+
+@app.post("/usergroup/add", response_model=UserGroup)
+def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_user = crud.get_user_by_id(db=db, user_id=user_id)
+    if not db_user:
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} not found")
+    db_group = crud.get_group_by_id(db=db, group_id=group_id)
+    if not db_group:
+        raise HTTPException(status_code=400, detail=f"Group with this id {group_id} not found")
+    db_usergroup = crud.get_usergroup(db=db, user_id=user_id, group_id=group_id)
+    if db_usergroup:
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} is already in a group with id {group_id}")
+    return crud.add_user_to_group(db=db, user_id=user_id, group_id=group_id)
 
 
 @app.post("/token", response_model=Token)

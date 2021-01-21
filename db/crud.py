@@ -15,6 +15,10 @@ def get_user_by_username(db: Session, username: str):
     return db.query(models.User).filter(models.User.username == username).first()
 
 
+def get_user_by_id(db: Session, user_id: int):
+    return db.query(models.User).filter(models.User.id == user_id).first()
+
+
 def create_user(db: Session, user_base: schemas.UserBase):
     user = models.User(
         card=user_base.card,
@@ -52,3 +56,21 @@ def get_users_from_group(db: Session, group_id: int):
 
 def get_group_by_name(db: Session, name: str):
     return db.query(models.Group).filter(models.Group.name == name).first()
+
+
+def get_group_by_id(db: Session, group_id: int):
+    return db.query(models.Group).filter(models.Group.id == group_id).first()
+
+
+def get_usergroup(db: Session, user_id: int, group_id: int):
+    return db.query(models.UserGroup).filter(models.UserGroup.user_id == user_id and models.UserGroup.group_id == group_id).first()
+
+
+def add_user_to_group(db: Session, user_id: int, group_id: int):
+    usergroup = models.UserGroup(
+        user_id=user_id,
+        group_id=group_id
+    )
+    db.add(usergroup)
+    db.commit()
+    return usergroup
