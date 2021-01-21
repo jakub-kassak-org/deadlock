@@ -139,10 +139,26 @@ def create_user(user: UserBase, db: Session = Depends(get_db), current_user: Use
     return crud.create_user(db=db, user_base=user)
 
 
-# TODO implement this
 @app.get("/groups")
-async def read_items(token: str = Depends(oauth2_scheme)):
-    return {}
+async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    if not is_user_staff(current_user):
+        raise exceptions.NOT_ALLOWED
+    groups = crud.get_groups(db)
+    return {'groups': groups}
+
+
+# Returns list of users from this group
+@app.get("/groups/{group_id}")
+async def get_groups(group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    if not is_user_staff(current_user):
+        raise exceptions.NOT_ALLOWED
+    users_in_group = crud.get_users_from_group(db=db, group_id=group_id)
+    if not users_in_group:
+        raise HTTPException(status_code=400, detail=f"Group with id {group_id} was not found")
+    return {
+        'group_id': group_id,
+        'users': users_in_group
+    }
 
 
 @app.post("/token", response_model=Token)
