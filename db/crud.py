@@ -11,6 +11,19 @@ def get_user_by_username(db: Session, username: str):
     return db.query(models.User).filter(models.User.username == username).first()
 
 
+def create_user(db: Session, user_base: schemas.UserBase):
+    user = models.User(
+        card=user_base.card,
+        username=user_base.username,
+        first_name=user_base.first_name,
+        last_name=user_base.last_name,
+        is_staff=user_base.is_staff
+    )
+    db.add(user)
+    db.commit()
+    return user
+
+
 def add_group(db: Session, group: schemas.Group):
     db_group = models.Group(title=group.title)
     db.add(db_group)

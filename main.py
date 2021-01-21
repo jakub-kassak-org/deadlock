@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from db import models, crud
 from db.database import SessionLocal, engine
-from db.schemas import User, Token, TokenData
+from db.schemas import User, UserBase, Token, TokenData
 
 from typing import Optional
 
@@ -12,6 +12,8 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 
 from datetime import datetime, timedelta
+
+import exceptions
 
 import logging
 logger = logging.getLogger(__name__)
@@ -29,17 +31,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 models.Base.metadata.create_all(bind=engine)
-
-
-# fake_users_db = {
-#     "johndoe": {
-#         "username": "johndoe",
-#         "full_name": "John Doe",
-#         "email": "johndoe@example.com",
-#         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-#         "disabled": False,
-#     }
-# }
 
 
 async def get_db():
@@ -118,6 +109,10 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     return current_user
 
 
+def is_user_staff(user: User):
+    return user and user.is_staff
+
+
 @app.get('/')
 async def root():
     return {'message': 'response'}
@@ -125,22 +120,29 @@ async def root():
 
 @app.get('/users')
 async def get_users(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    not_allowed_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="User not allowed to perform this action",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    if not current_user:
-        raise not_allowed_exception
-    if not current_user.is_staff:
-        raise not_allowed_exception
+    if not is_user_staff(current_user):
+        raise exceptions.NOT_ALLOWED
     users = crud.get_users(db)
     return {'users': users}
 
 
-@app.get("/groups/")
+@app.post("/users", response_model=User)
+def create_user(user: UserBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    if not is_user_staff(current_user):
+        raise exceptions.NOT_ALLOWED
+    db_user = crud.get_user_by_username(db=db, username=user.username)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    db_user = crud.get_user_by_card(db=db, card=user.card)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Card already registered for different user")
+    return crud.create_user(db=db, user_base=user)
+
+
+# TODO implement this
+@app.get("/groups")
 async def read_items(token: str = Depends(oauth2_scheme)):
-    return {"token": token}
+    return {}
 
 
 @app.post("/token", response_model=Token)

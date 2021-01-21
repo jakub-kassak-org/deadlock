@@ -21,15 +21,23 @@ class GroupRule(BaseModel):
         orm_mode = True
 
 
-class User(BaseModel):
-    id: str
+class UserBase(BaseModel):
     card: str
     username: str
     first_name: str
     last_name: str
-    disabled: bool
     is_staff: bool
+
+    class Config:
+        orm_mode = True
+
+
+class User(UserBase):
+    id: str
+    disabled: bool
     groups: List[UserGroup] = []
+    created: datetime
+    updated: datetime
 
     class Config:
         orm_mode = True
