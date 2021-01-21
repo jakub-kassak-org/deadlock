@@ -67,10 +67,39 @@ def get_usergroup(db: Session, user_id: int, group_id: int):
 
 
 def add_user_to_group(db: Session, user_id: int, group_id: int):
-    usergroup = models.UserGroup(
+    db_usergroup = models.UserGroup(
         user_id=user_id,
         group_id=group_id
     )
-    db.add(usergroup)
+    db.add(db_usergroup)
     db.commit()
-    return usergroup
+    return db_usergroup
+
+
+def get_rule_by_name(db: Session, name: str):
+    return db.query(models.Rule).filter(models.Rule.name == name).first()
+
+
+def create_rule(db: Session, rule: schemas.RuleBase):
+    import logging
+    logger = logging.getLogger(__name__)
+    db_rule = models.Rule(
+        name=rule.name,
+        allow=rule.allow,
+        ap_type_id=rule.ap_type_id,
+        time_spec_id=rule.time_spec_id,
+        priority=rule.priority
+    )
+    logger.warning('yeee')
+    logger.warning(db_rule)
+    db.add(db_rule)
+    db.commit()
+    return db_rule
+
+
+def get_ap_type_by_id(db: Session, ap_type_id: int):
+    return db.query(models.AccessPointType).filter(models.AccessPointType.id == ap_type_id).first()
+
+
+def get_time_spec_by_id(db: Session, time_spec_id: int):
+    return db.query(models.TimeSpec).filter(models.TimeSpec.id == time_spec_id).first()
