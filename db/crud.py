@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 
 from . import models, schemas
 
@@ -48,7 +49,7 @@ def get_users_from_group(db: Session, group_id: int):
     db_group = db.query(models.Group).filter(models.Group.id == group_id).first()
     if not db_group:
         return None
-    users_group = db.query(models.UserGroup).filter(models.UserGroup.id == group_id)  # [user_id, group_id] where group_id = group_id
+    users_group = db.query(models.UserGroup).filter(models.UserGroup.group_id == group_id)  # [user_id, group_id] where group_id = group_id
     user_ids = set([x.user_id for x in users_group])
     users = db.query(models.User).filter(models.User.id.in_(user_ids)).all()
     return users
@@ -63,7 +64,7 @@ def get_group_by_id(db: Session, group_id: int):
 
 
 def get_usergroup(db: Session, user_id: int, group_id: int):
-    return db.query(models.UserGroup).filter(models.UserGroup.user_id == user_id and models.UserGroup.group_id == group_id).first()
+    return db.query(models.UserGroup).filter(and_(models.UserGroup.user_id == user_id, models.UserGroup.group_id == group_id)).first()
 
 
 def add_user_to_group(db: Session, user_id: int, group_id: int):

@@ -58,7 +58,6 @@ class Group(BaseModel):
 
 class GroupCreate(BaseModel):
     name: str
-    rules: List[GroupRule] = []
 
     class Config:
         orm_mode = True
@@ -94,7 +93,6 @@ class RuleBase(BaseModel):
     allow: bool
     time_spec_id: int
     ap_type_id: int
-    groups: List[GroupRule] = []
     priority: int
 
     class Config:
@@ -105,6 +103,7 @@ class Rule(RuleBase):
     id: int
     created: datetime
     updated: datetime
+    groups: List[GroupRule] = []
 
     class Config:
         orm_mode = True

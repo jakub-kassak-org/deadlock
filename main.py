@@ -118,18 +118,18 @@ async def root():
     return {'message': 'response'}
 
 
-@app.get('/users')
+@app.get('/users/')
 async def get_users(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     users = crud.get_users(db, offset=offset, limit=limit)
     return {'users': users}
 
 
-@app.get("/users/me")
+@app.get("/users/me/")
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
 
-@app.post("/users", response_model=User)
+@app.post("/users/", response_model=User)
 def create_user(user: UserBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_username(db=db, username=user.username)
     if db_user:
@@ -140,14 +140,14 @@ def create_user(user: UserBase, db: Session = Depends(get_db), current_user: Use
     return crud.create_user(db=db, user_base=user)
 
 
-@app.get("/groups")
+@app.get("/groups/")
 async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     groups = crud.get_groups(db, offset=offset, limit=limit)
     return {'groups': groups}
 
 
 # Returns list of users from this group
-@app.get("/groups/{group_id}")
+@app.get("/groups/{group_id}/")
 async def get_groups(group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     users_in_group = crud.get_users_from_group(db=db, group_id=group_id)
     if not users_in_group:
@@ -158,7 +158,7 @@ async def get_groups(group_id: int, db: Session = Depends(get_db), current_user:
     }
 
 
-@app.post("/groups", response_model=Group)
+@app.post("/groups/", response_model=Group)
 def create_group(group: GroupCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_group = crud.get_group_by_name(db=db, name=group.name)
     if db_group:
@@ -166,7 +166,7 @@ def create_group(group: GroupCreate, db: Session = Depends(get_db), current_user
     return crud.create_group(db=db, group=group)
 
 
-@app.post("/usergroup/add", response_model=UserGroup)
+@app.post("/usergroup/add/", response_model=UserGroup)
 def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_id(db=db, user_id=user_id)
     if not db_user:
@@ -180,7 +180,7 @@ def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db)
     return crud.add_user_to_group(db=db, user_id=user_id, group_id=group_id)
 
 
-@app.post("/rules/add", response_model=Rule)
+@app.post("/rules/add/", response_model=Rule)
 def create_rule(rule: RuleBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_rule = crud.get_rule_by_name(db=db, name=rule.name)
     if db_rule:
@@ -194,7 +194,7 @@ def create_rule(rule: RuleBase, db: Session = Depends(get_db), current_user: Use
     return crud.create_rule(db=db, rule=rule)
 
 
-@app.post("/token", response_model=Token)
+@app.post("/token/", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
