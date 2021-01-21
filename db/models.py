@@ -8,8 +8,8 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    username = Column(String, nullable=False)
-    card = Column(String, nullable=False)
+    username = Column(String, nullable=False, unique=True)
+    card = Column(String, nullable=False, unique=True)
     first_name = Column(String)
     last_name = Column(String)
     is_staff = Column(Boolean, nullable=False, default=False)

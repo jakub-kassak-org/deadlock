@@ -26,7 +26,7 @@ Send `POST` request to `/token` with body like:
 
 ### Endpoints
 
-####`/users`
+#### `/users`
 Returns list of users in json format:
 ```json
 {
