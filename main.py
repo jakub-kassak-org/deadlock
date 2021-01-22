@@ -140,6 +140,14 @@ def create_user(user: UserBase, db: Session = Depends(get_db), current_user: Use
     return crud.create_user(db=db, user_base=user)
 
 
+@app.delete("/users/delete/{user_id}/")
+def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_user = crud.get_user_by_id(db=db, user_id=user_id)
+    if not db_user:
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} does not exist, there fore can't be deleted.")
+    return {'was_deleted': crud.delete_user(db=db, user_id=user_id)}
+
+
 @app.get("/groups/")
 async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     groups = crud.get_groups(db, offset=offset, limit=limit)

@@ -33,6 +33,15 @@ def create_user(db: Session, user_base: schemas.UserBase):
     return user
 
 
+def delete_user(db: Session, user_id: int):
+    try:
+        ret = db.query(models.User).filter(models.User.id == user_id).delete()
+        db.commit()
+    except Exception:
+        return False
+    return True
+
+
 def create_group(db: Session, group: schemas.GroupCreate):
     db_group = models.Group(name=group.name)
     db.add(db_group)
