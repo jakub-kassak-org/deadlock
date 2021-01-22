@@ -68,6 +68,7 @@ class TimeSpecBase(BaseModel):
     weekday_mask: int
     time_from: time
     time_to: time
+    date_from: datetime
     date_to: datetime
 
     class Config:
@@ -81,8 +82,17 @@ class TimeSpec(TimeSpecBase):
         orm_mode = True
 
 
-class AccessPointType(BaseModel):
+class AccessPointTypeBase(BaseModel):
     name: str
+
+    class Config:
+        orm_mode = True
+
+
+class AccessPointType(AccessPointTypeBase):
+    id: int
+    created: datetime
+    updated: datetime
 
     class Config:
         orm_mode = True

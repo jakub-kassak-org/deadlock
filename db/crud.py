@@ -82,8 +82,6 @@ def get_rule_by_name(db: Session, name: str):
 
 
 def create_rule(db: Session, rule: schemas.RuleBase):
-    import logging
-    logger = logging.getLogger(__name__)
     db_rule = models.Rule(
         name=rule.name,
         allow=rule.allow,
@@ -91,8 +89,6 @@ def create_rule(db: Session, rule: schemas.RuleBase):
         time_spec_id=rule.time_spec_id,
         priority=rule.priority
     )
-    logger.warning('yeee')
-    logger.warning(db_rule)
     db.add(db_rule)
     db.commit()
     return db_rule
@@ -102,5 +98,36 @@ def get_ap_type_by_id(db: Session, ap_type_id: int):
     return db.query(models.AccessPointType).filter(models.AccessPointType.id == ap_type_id).first()
 
 
+def get_ap_type_by_name(db: Session, ap_type_name: str):
+    return db.query(models.AccessPointType).filter(models.AccessPointType.name == ap_type_name).first()
+
+
+def create_ap_type(db: Session, ap_type: schemas.AccessPointTypeBase):
+    db_ap_type = models.AccessPointType(
+        name=ap_type.name
+    )
+    db.add(db_ap_type)
+    db.commit()
+    return db_ap_type
+
+
 def get_time_spec_by_id(db: Session, time_spec_id: int):
     return db.query(models.TimeSpec).filter(models.TimeSpec.id == time_spec_id).first()
+
+
+def get_time_spec_by_title(db: Session, time_spec_title: str):
+    return db.query(models.TimeSpec).filter(models.TimeSpec.title == time_spec_title).first()
+
+
+def create_time_spec(db: Session, time_spec: schemas.TimeSpecBase):
+    db_time_spec = models.TimeSpec(
+        title=time_spec.title,
+        weekday_mask=time_spec.weekday_mask,
+        time_from=time_spec.time_from,
+        time_to=time_spec.time_to,
+        date_from=time_spec.date_from,
+        date_to=time_spec.date_to
+    )
+    db.add(db_time_spec)
+    db.commit()
+    return db_time_spec

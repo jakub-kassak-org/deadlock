@@ -71,13 +71,13 @@ class TimeSpec(Base):
     __tablename__ = 'time_spec'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String, server_default='rule')
+    title = Column(String, unique=True)
     # Day number i if (weekday_mask & (1 << i)), 0 is monday
     weekday_mask = Column('weekday_mask', Integer, CheckConstraint('0 <= weekday_mask AND weekday_mask <= 255'), nullable=False)
     time_from = Column(Time, nullable=False)
     time_to = Column(Time, nullable=False)
-    date_from = Column(Date, nullable=False, server_default=utcnow())
-    date_to = Column(Date, nullable=False)  # TODO server_default?
+    date_from = Column(DateTime, nullable=False, server_default=utcnow())
+    date_to = Column(DateTime, nullable=False)  # TODO server_default?
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
 
