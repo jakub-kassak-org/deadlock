@@ -98,6 +98,19 @@ def get_ap_type_by_id(db: Session, ap_type_id: int):
     return db.query(models.AccessPointType).filter(models.AccessPointType.id == ap_type_id).first()
 
 
+def get_ap_type_by_name(db: Session, ap_type_name: str):
+    return db.query(models.AccessPointType).filter(models.AccessPointType.name == ap_type_name).first()
+
+
+def create_ap_type(db: Session, ap_type: schemas.AccessPointTypeBase):
+    db_ap_type = models.AccessPointType(
+        name=ap_type.name
+    )
+    db.add(db_ap_type)
+    db.commit()
+    return db_ap_type
+
+
 def get_time_spec_by_id(db: Session, time_spec_id: int):
     return db.query(models.TimeSpec).filter(models.TimeSpec.id == time_spec_id).first()
 

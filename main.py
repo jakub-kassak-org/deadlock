@@ -202,6 +202,14 @@ def create_timespec(timespec: TimeSpecBase, db: Session = Depends(get_db), curre
     return crud.create_time_spec(db=db, time_spec=timespec)
 
 
+@app.post("/aptype/add/", response_model=AccessPointType)
+def create_aptype(aptype: AccessPointTypeBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_aptype = crud.get_ap_type_by_name(db=db, ap_type_name=aptype.name)
+    if db_aptype:
+        raise HTTPException(status_code=400, detail=f"AccesspointType with name {aptype.name} already exists.")
+    return crud.create_ap_type(db=db, ap_type=aptype)
+
+
 @app.post("/token/", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
