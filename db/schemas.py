@@ -68,6 +68,7 @@ class TimeSpecBase(BaseModel):
     weekday_mask: int
     time_from: time
     time_to: time
+    date_from: datetime
     date_to: datetime
 
     class Config:

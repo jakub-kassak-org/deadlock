@@ -105,7 +105,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
     if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=400, detail="Inactive user.")
     return current_user
 
 
@@ -133,10 +133,10 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 def create_user(user: UserBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_username(db=db, username=user.username)
     if db_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
+        raise HTTPException(status_code=400, detail="Username already registered.")
     db_user = crud.get_user_by_card(db=db, card=user.card)
     if db_user:
-        raise HTTPException(status_code=400, detail="Card already registered for different user")
+        raise HTTPException(status_code=400, detail="Card already registered for different user.")
     return crud.create_user(db=db, user_base=user)
 
 
@@ -151,7 +151,7 @@ async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(ge
 async def get_groups(group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     users_in_group = crud.get_users_from_group(db=db, group_id=group_id)
     if not users_in_group:
-        raise HTTPException(status_code=400, detail=f"Group with id {group_id} was not found")
+        raise HTTPException(status_code=400, detail=f"Group with id {group_id} was not found.")
     return {
         'group_id': group_id,
         'users': users_in_group
@@ -162,7 +162,7 @@ async def get_groups(group_id: int, db: Session = Depends(get_db), current_user:
 def create_group(group: GroupCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_group = crud.get_group_by_name(db=db, name=group.name)
     if db_group:
-        raise HTTPException(status_code=400, detail="Group with this name already registered")
+        raise HTTPException(status_code=400, detail="Group with this name already registered.")
     return crud.create_group(db=db, group=group)
 
 
@@ -170,13 +170,13 @@ def create_group(group: GroupCreate, db: Session = Depends(get_db), current_user
 def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_id(db=db, user_id=user_id)
     if not db_user:
-        raise HTTPException(status_code=400, detail=f"User with id {user_id} not found")
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} not found.")
     db_group = crud.get_group_by_id(db=db, group_id=group_id)
     if not db_group:
-        raise HTTPException(status_code=400, detail=f"Group with this id {group_id} not found")
+        raise HTTPException(status_code=400, detail=f"Group with this id {group_id} not found.")
     db_usergroup = crud.get_usergroup(db=db, user_id=user_id, group_id=group_id)
     if db_usergroup:
-        raise HTTPException(status_code=400, detail=f"User with id {user_id} is already in a group with id {group_id}")
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} is already in a group with id {group_id}.")
     return crud.add_user_to_group(db=db, user_id=user_id, group_id=group_id)
 
 
@@ -184,7 +184,7 @@ def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db)
 def create_rule(rule: RuleBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_rule = crud.get_rule_by_name(db=db, name=rule.name)
     if db_rule:
-        raise HTTPException(status_code=400, detail=f"Rule with name {rule.name} already exists")
+        raise HTTPException(status_code=400, detail=f"Rule with name {rule.name} already exists.")
     db_ap_type = crud.get_ap_type_by_id(db=db, ap_type_id=rule.ap_type_id)
     if not db_ap_type:
         raise HTTPException(status_code=400, detail=f"AccesspointType with id {rule.ap_type_id} does not exist. Create it first please.")
@@ -192,6 +192,14 @@ def create_rule(rule: RuleBase, db: Session = Depends(get_db), current_user: Use
     if not db_time_spec:
         raise HTTPException(status_code=400, detail=f"TimeSpec with id {rule.time_spec_id} does not exist. Create it first please.")
     return crud.create_rule(db=db, rule=rule)
+
+
+@app.post("/timespec/add/", response_model=TimeSpec)
+def create_timespec(timespec: TimeSpecBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_timespec = crud.get_time_spec_by_title(db=db, time_spec_title=timespec.title)
+    if db_timespec:
+        raise HTTPException(status_code=400, detail=f"TimeSpec with title {timespec.title} already exists.")
+    return crud.create_time_spec(db=db, time_spec=timespec)
 
 
 @app.post("/token/", response_model=Token)

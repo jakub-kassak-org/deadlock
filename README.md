@@ -229,3 +229,41 @@ Example request:
 ```
 
 Success response example: TODO
+
+#### `[POST] /timespec/add`
+Adds a time specification. Attribute `weekday_mask` works as follows.
+Days are numbered `0` through `6` inclusively, where `0` is Monday and `6` is Sunday.
+If day number `i` should be affected by this time specification, then it needs to be
+set using `weekday_mask`. Day number `i` is affected iff `weekday_mask & (1 << i)`.
+For example, time specification affecting Tuesday and Friday has `weekday_mask` of
+`0010010` in binary, where least significant bit is last. This needs to be converted to
+decimal, therefore, value of `weekday_mask` for Tuesday and Friday should be `18`.
+Attributes `date_from` and `date_to` mark the beginning and the end of time period during
+which this time specification is valid. Attributes `time_from` and `time_to` express
+time period during which this time specification si valid during days specified by
+`weekday_mask`.
+
+Example request body:
+```json
+{
+  "title": "MondayMorning",
+  "weekday_mask": 1,
+  "time_from": "06:00:00.000",
+  "time_to": "09:00:00.000",
+  "date_from": "2021-01-22 00:00:00.000",
+  "date_to": "2022-01-22 00:00:00.000"
+}
+```
+
+Example response:
+```json
+{
+  "title": "MondayMorning",
+  "weekday_mask": 1,
+  "time_from": "06:00:00",
+  "time_to": "09:00:00",
+  "date_from": "2021-01-22T00:00:00",
+  "date_to": "2022-01-22T00:00:00",
+  "id": 4
+}
+```
