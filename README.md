@@ -217,18 +217,28 @@ Success response looks like:
 
 #### `[POST] /rules/add/`
 Adds a rule. Does not assign it to groups yet.
+
 Example request:
 ```json
 {
-  "name": "somerulename",
+  "name": "1INFComputerRooms",
   "allow": true,
-  "time_spec_id": 7,
-  "ap_type_id": 1,
+  "time_spec_id": 1,
+  "ap_type_id": 2,
   "priority": 6
 }
 ```
 
-Success response example: TODO
+Example response:
+```json
+{
+  "name": "1INFComputerRooms",
+  "allow": true,
+  "time_spec_id": 1,
+  "ap_type_id": 2,
+  "priority": 6
+}
+```
 
 #### `[POST] /timespec/add/`
 Adds a time specification. Attribute `weekday_mask` works as follows.
