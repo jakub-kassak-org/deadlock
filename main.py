@@ -144,7 +144,7 @@ def create_user(user: UserBase, db: Session = Depends(get_db), current_user: Use
 def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_id(db=db, user_id=user_id)
     if not db_user:
-        raise HTTPException(status_code=400, detail=f"User with id {user_id} does not exist, there fore can't be deleted.")
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} does not exist, therefore can't be deleted.")
     return {'was_deleted': crud.delete_user(db=db, user_id=user_id)}
 
 
@@ -172,6 +172,14 @@ def create_group(group: GroupCreate, db: Session = Depends(get_db), current_user
     if db_group:
         raise HTTPException(status_code=400, detail="Group with this name already registered.")
     return crud.create_group(db=db, group=group)
+
+
+@app.delete("/groups/delete/{group_id}/")
+def delete_group(group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_group = crud.get_group_by_id(db=db, group_id=group_id)
+    if not db_group:
+        raise HTTPException(status_code=400, detail=f"Group with id {group_id} does not exist, therefore can't be deleted.")
+    return {'was_deleted': crud.delete_group(db=db, group_id=group_id)}
 
 
 @app.post("/usergroup/add/", response_model=UserGroup)
