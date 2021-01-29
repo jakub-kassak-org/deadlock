@@ -196,6 +196,9 @@ def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db)
     return crud.add_user_to_group(db=db, user_id=user_id, group_id=group_id)
 
 
+# TODO /usergroup/delete/
+
+
 @app.post("/rules/add/", response_model=Rule)
 def create_rule(rule: RuleBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_rule = crud.get_rule_by_name(db=db, name=rule.name)
@@ -210,6 +213,9 @@ def create_rule(rule: RuleBase, db: Session = Depends(get_db), current_user: Use
     return crud.create_rule(db=db, rule=rule)
 
 
+# TODO /rules/delete/
+
+
 @app.post("/timespec/add/", response_model=TimeSpec)
 def create_timespec(timespec: TimeSpecBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_timespec = crud.get_time_spec_by_title(db=db, time_spec_title=timespec.title)
@@ -218,12 +224,18 @@ def create_timespec(timespec: TimeSpecBase, db: Session = Depends(get_db), curre
     return crud.create_time_spec(db=db, time_spec=timespec)
 
 
+# TODO /timespec/delete/
+
+
 @app.post("/aptype/add/", response_model=AccessPointType)
 def create_aptype(aptype: AccessPointTypeBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_aptype = crud.get_ap_type_by_name(db=db, ap_type_name=aptype.name)
     if db_aptype:
         raise HTTPException(status_code=400, detail=f"AccesspointType with name {aptype.name} already exists.")
     return crud.create_ap_type(db=db, ap_type=aptype)
+
+
+# TODO /aptype/delete/
 
 
 @app.post("/token/", response_model=Token)
