@@ -189,7 +189,7 @@ def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db)
         raise HTTPException(status_code=400, detail=f"User with id {user_id} not found.")
     db_group = crud.get_group_by_id(db=db, group_id=group_id)
     if not db_group:
-        raise HTTPException(status_code=400, detail=f"Group with this id {group_id} not found.")
+        raise HTTPException(status_code=400, detail=f"Group with id {group_id} not found.")
     db_usergroup = crud.get_usergroup(db=db, user_id=user_id, group_id=group_id)
     if db_usergroup:
         raise HTTPException(status_code=400, detail=f"User with id {user_id} is already in a group with id {group_id}.")
@@ -214,6 +214,22 @@ def create_rule(rule: RuleBase, db: Session = Depends(get_db), current_user: Use
 
 
 # TODO /rules/delete/
+
+
+# Allows or denies
+@app.post("/entry/eval/")
+def evaluate_entry(card: str, access_point_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    import logging
+    logger = logging.getLogger(__name__)
+
+    group_ids = crud.get_groups_by_card(db=db, card=card)
+    if len(group_ids) == 0:
+        return False  # This user is not in any group, therefore there are no rules for him -> Deny
+    ap_type_id = crud.get_ap_type_id_by_ap_id(db=db, ap_id=access_point_id)
+    if not ap_type_id:
+        # TODO log error: No ap_type for this ap
+        return False  # Deny
+    rules = crud.get_rules_by_groups_and_ap_type(db=db, group_ids=group_ids, ap_type_id=ap_type_id)
 
 
 @app.post("/timespec/add/", response_model=TimeSpec)

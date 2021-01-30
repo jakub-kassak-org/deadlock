@@ -1,5 +1,9 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, CheckConstraint, Time, Date
+from sqlalchemy import and_
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.session import Session
+from sqlalchemy.ext.hybrid import hybrid_method
+from datetime import datetime
 
 from .database import Base, utcnow
 
@@ -40,11 +44,23 @@ class Rule(Base):
     allow = Column(Boolean, server_default="False", nullable=False)
     ap_type_id = Column(Integer, ForeignKey('access_point_type.id'), nullable=False)
     time_spec_id = Column(Integer, ForeignKey('time_spec.id'), nullable=False)
+    time_spec = relationship('TimeSpec', back_populates='rules')
     priority = Column('priority', Integer, CheckConstraint('0 <= priority AND priority <= 10'), nullable=False, server_default='5')
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
 
     groups = relationship('GroupRule')
+
+    # @hybrid_method
+    def matches_time(self, dt: datetime):
+        session = Session.object_session(self)
+        # ts = session.query(TimeSpec).filter(TimeSpec.id == self.time_spec_id).first()
+        # return ts.matches_time(dt)
+
+        print('SOM TU')
+        print(session)
+        print('IDEM PREC')
+        return True
 
 
 class UserGroup(Base):
@@ -72,14 +88,36 @@ class TimeSpec(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String, unique=True)
-    # Day number i if (weekday_mask & (1 << i)), 0 is monday
+    # Day number i if (weekday_mask & (1 << i)), 0 is Monday
     weekday_mask = Column('weekday_mask', Integer, CheckConstraint('0 <= weekday_mask AND weekday_mask <= 255'), nullable=False)
     time_from = Column(Time, nullable=False)
     time_to = Column(Time, nullable=False)
     date_from = Column(DateTime, nullable=False, server_default=utcnow())
     date_to = Column(DateTime, nullable=False)  # TODO server_default?
+    rules = relationship('Rule', back_populates='time_spec')
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
+
+    @hybrid_method
+    def matches_time(self, dt: datetime):
+        return self.date_from <= dt.date() <= self.date_to\
+            and (self.weekday_mask & (1 << dt.weekday()) > 0)\
+            and self.time_from <= dt.time() <= self.time_to
+
+    @matches_time.expression
+    def matches_time(cls, dt: datetime):
+        return and_(
+            cls.date_from <= dt.date() <= cls.date_to,
+            (cls.weekday_mask & (1 << dt.weekday())) > 0,
+            cls.time_from <= dt.time() <= cls.time_to)
+
+    @hybrid_method
+    def valid_at_day(self, weekday: int):
+        return (self.weekday_mask & (1 << weekday)) > 0
+
+    @valid_at_day.expression
+    def valid_at_day(cls, weekday: int):
+        return (cls.weekday_mask & (1 << weekday)) > 0
 
 
 class AccessPointType(Base):
