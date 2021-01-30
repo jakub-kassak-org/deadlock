@@ -110,6 +110,7 @@ def get_rules_by_groups_and_ap_type(db: Session, group_ids: set, ap_type_id: int
     grouprules = db.query(models.GroupRule).filter(models.GroupRule.group_id.in_(group_ids))
     rule_ids = [x.rule_id for x in grouprules]
     dt = datetime.now()
+    # TODO maybe only query for 'priority' and 'allow'
     rules = db.query(models.Rule)\
         .join(models.TimeSpec)\
         .filter(models.Rule.time_spec_id == models.TimeSpec.id)\
@@ -120,7 +121,6 @@ def get_rules_by_groups_and_ap_type(db: Session, group_ids: set, ap_type_id: int
         .filter(models.TimeSpec.date_to >= dt)\
         .filter(models.TimeSpec.time_from <= dt.time())\
         .filter(models.TimeSpec.time_to >= dt.time())
-
     return rules
 
 
