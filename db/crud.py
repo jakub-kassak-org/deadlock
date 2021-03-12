@@ -209,3 +209,14 @@ def create_time_spec(db: Session, time_spec: schemas.TimeSpecBase):
     db.add(db_time_spec)
     db.commit()
     return db_time_spec
+
+
+def delete_time_spec(db: Session, time_spec_id: int):
+    try:
+        db.query(models.TimeSpec).filter(models.TimeSpec.id == time_spec_id).delete()
+        db.commit()
+    # TODO catch specific exception, log it
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'

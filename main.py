@@ -236,7 +236,6 @@ def create_rule(rule: RuleBase, db: Session = Depends(get_db), current_user: Use
     return crud.create_rule(db=db, rule=rule)
 
 
-# TODO /rules/delete/
 @app.delete("/rules/delete/{rule_id}/")
 def delete_rule(rule_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_rule = crud.get_rule_by_id(db=db, rule_id=rule_id)
@@ -280,7 +279,17 @@ def create_timespec(timespec: TimeSpecBase, db: Session = Depends(get_db), curre
     return crud.create_time_spec(db=db, time_spec=timespec)
 
 
-# TODO /timespec/delete/
+@app.delete("/timespec/delete/{time_spec_id}/")
+def delete_timespec(time_spec_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_timespec = crud.get_time_spec_by_id(db=db, time_spec_id=time_spec_id)
+    if not db_timespec:
+        raise HTTPException(status_code=400, detail=f"TimeSpec with id {time_spec_id} does not exist, nothing to delete.")
+    deleted, detail = crud.delete_time_spec(db=db, time_spec_id=time_spec_id)
+    return {
+        'was_deleted': deleted,
+        'detail': detail,
+        'id': time_spec_id
+    }
 
 
 @app.post("/aptype/add/", response_model=AccessPointType)
