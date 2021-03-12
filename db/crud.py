@@ -56,9 +56,10 @@ def delete_group(db: Session, group_id: int):
         db.query(models.Group).filter(models.Group.id == group_id).delete()
         db.commit()
     # TODO catch specific exception, log it
-    except Exception:
-        return False
-    return True
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'
 
 
 def get_groups(db: Session, offset: int = 0, limit: int = 100):
@@ -108,9 +109,10 @@ def delete_user_from_group(db: Session, usergroup_id: int):
         db.query(models.UserGroup).filter(models.UserGroup.id == usergroup_id).delete()
         db.commit()
     # TODO catch specific exception, log it
-    except Exception:
-        return False
-    return True
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'
 
 
 def get_rule_by_name(db: Session, name: str):
