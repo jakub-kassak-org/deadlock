@@ -237,6 +237,17 @@ def create_rule(rule: RuleBase, db: Session = Depends(get_db), current_user: Use
 
 
 # TODO /rules/delete/
+@app.delete("/rules/delete/{rule_id}/")
+def delete_rule(rule_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_rule = crud.get_rule_by_id(db=db, rule_id=rule_id)
+    if not db_rule:
+        raise HTTPException(status_code=400, detail=f"Rule with id {rule_id} does not exist, nothing to delete.")
+    deleted, detail = crud.delete_rule(db=db, rule_id=rule_id)
+    return {
+        'was_deleted': deleted,
+        'detail': detail,
+        'id': rule_id
+    }
 
 
 # Allows or denies

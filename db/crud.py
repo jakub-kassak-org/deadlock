@@ -119,6 +119,10 @@ def get_rule_by_name(db: Session, name: str):
     return db.query(models.Rule).filter(models.Rule.name == name).first()
 
 
+def get_rule_by_id(db: Session, rule_id: int):
+    return db.query(models.Rule).filter(models.Rule.id == rule_id).first()
+
+
 def get_rules_by_groups_and_ap_type(db: Session, group_ids: set, ap_type_id: int):
     grouprules = db.query(models.GroupRule).filter(models.GroupRule.group_id.in_(group_ids))
     rule_ids = [x.rule_id for x in grouprules]
@@ -148,6 +152,17 @@ def create_rule(db: Session, rule: schemas.RuleBase):
     db.add(db_rule)
     db.commit()
     return db_rule
+
+
+def delete_rule(db: Session, rule_id: int):
+    try:
+        db.query(models.Rule).filter(models.Rule.id == rule_id).delete()
+        db.commit()
+    # TODO catch specific exception, log it
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'
 
 
 def get_ap_type_by_id(db: Session, ap_type_id: int):
