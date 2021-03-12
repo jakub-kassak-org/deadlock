@@ -38,9 +38,11 @@ def delete_user(db: Session, user_id: int):
     try:
         db.query(models.User).filter(models.User.id == user_id).delete()
         db.commit()
-    except Exception:
-        return False
-    return True
+    # TODO catch specific exception, log it
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'
 
 
 def create_group(db: Session, group: schemas.GroupCreate):
