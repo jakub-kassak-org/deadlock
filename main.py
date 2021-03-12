@@ -196,7 +196,23 @@ def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db)
     return crud.add_user_to_group(db=db, user_id=user_id, group_id=group_id)
 
 
-# TODO /usergroup/delete/
+@app.delete("/usergroup/delete/{user_id}/{group_id}/", response_model=UserGroupDelete)
+def delete_user_from_group(user_id: int, group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_user = crud.get_user_by_id(db=db, user_id=user_id)
+    if not db_user:
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} not found.")
+    db_group = crud.get_group_by_id(db=db, group_id=group_id)
+    if not db_group:
+        raise HTTPException(status_code=400, detail=f"Group with id {group_id} not found.")
+    db_usergroup = crud.get_usergroup(db=db, user_id=user_id, group_id=group_id)
+    if not db_usergroup:
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} is not in the group with id {group_id}, nothing to delete")
+    return {
+        'was_deleted': crud.delete_user_from_group(db=db, usergroup_id=db_usergroup.id),
+        'id': db_usergroup.id,
+        'user_id': user_id,
+        'group_id': group_id
+    }
 
 
 @app.post("/rules/add/", response_model=Rule)
