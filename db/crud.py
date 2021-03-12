@@ -189,6 +189,17 @@ def create_ap_type(db: Session, ap_type: schemas.AccessPointTypeBase):
     return db_ap_type
 
 
+def delete_ap_type(db: Session, ap_type_id: int):
+    try:
+        db.query(models.AccessPointType).filter(models.AccessPointType.id == ap_type_id).delete()
+        db.commit()
+    # TODO catch specific exception, log it
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'
+
+
 def get_time_spec_by_id(db: Session, time_spec_id: int):
     return db.query(models.TimeSpec).filter(models.TimeSpec.id == time_spec_id).first()
 

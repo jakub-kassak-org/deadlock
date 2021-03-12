@@ -300,7 +300,17 @@ def create_aptype(aptype: AccessPointTypeBase, db: Session = Depends(get_db), cu
     return crud.create_ap_type(db=db, ap_type=aptype)
 
 
-# TODO /aptype/delete/
+@app.delete("/aptype/delete/{ap_type_id}/")
+def delete_aptype(ap_type_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    db_aptype = crud.get_ap_type_by_id(db=db, ap_type_id=ap_type_id)
+    if not db_aptype:
+        raise HTTPException(status_code=400, detail=f"APType with id {ap_type_id} does not exist, nothing to delete.")
+    deleted, detail = crud.delete_ap_type(db=db, ap_type_id=ap_type_id)
+    return {
+        'was_deleted': deleted,
+        'detail': detail,
+        'id': ap_type_id
+    }
 
 
 @app.post("/token/", response_model=Token)
