@@ -145,7 +145,12 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User 
     db_user = crud.get_user_by_id(db=db, user_id=user_id)
     if not db_user:
         raise HTTPException(status_code=400, detail=f"User with id {user_id} does not exist, therefore can't be deleted.")
-    return {'was_deleted': crud.delete_user(db=db, user_id=user_id)}
+    deleted, detail = crud.delete_user(db=db, user_id=user_id)
+    return {
+        'was_deleted': deleted,
+        'detail': detail,
+        'id': user_id
+    }
 
 
 @app.get("/groups/")

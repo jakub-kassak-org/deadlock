@@ -124,8 +124,32 @@ Corresponding response body example:
 }
 ```
 
+#### `[DELETE] /users/delete/{user_id}/`
+Deletes user with `id = user_id`. Example response:
+```json
+{
+  "was_deleted": true,
+  "detail": "success",
+  "id": 2
+}
+```
+
 #### `[GET] /users/me/`
-Gets current user.
+Gets current user:
+```json
+{
+  "first_name": "Meno",
+  "username": "stlpik",
+  "is_staff": true,
+  "disabled": false,
+  "updated": "2021-03-12T19:30:41.255382",
+  "id": 1,
+  "card": "1234567891011",
+  "last_name": "Priezvisko",
+  "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
+  "created": "2021-03-12T19:30:41.255382"
+}
+```
 
 #### `[GET] /groups/`
 Returns list of all groups like this:
@@ -202,6 +226,10 @@ Example response to `GET` from `/groups/2`:
 }
 ```
 
+#### `[DELETE] /groups/delete/{group_id}/`
+Deleted a group with `id = group_id`. Response similar to the one described
+in `/users/delete/{user_id}/`
+
 #### `[POST] /usergroup/add/`
 Adds a user with with id `user_id` to the group with id `group_id`.
 Just make `POST` request to address like `/usergroup/add/?user_id=3&group_id=1`.
@@ -212,6 +240,18 @@ Success response looks like:
   "id": 5,
   "user_id": 3,
   "group_id": 1
+}
+```
+
+#### `[DELETE] /usergroup/delete/{user_id}/{group_id}/`
+Removes a user with `id = user_id` from the group with `id = group_id`.
+Success response example:
+```json
+{
+  "id": 1,
+  "user_id": 1,
+  "group_id": 1,
+  "was_deleted": true
 }
 ```
 
@@ -239,6 +279,10 @@ Example response:
   "priority": 6
 }
 ```
+
+#### `[DELETE] /rules/delete/{rule_id}/`
+Deletes a rule with `id = rule_id`. Success response similar to the one
+described in `/usergroup/delete/{user_id}/{group_id}/`.
 
 #### `[POST] /timespec/add/`
 Adds a time specification. Attribute `weekday_mask` works as follows.
@@ -278,6 +322,17 @@ Example response:
 }
 ```
 
+#### `[DELETE] /timespec/delete/{time_spec_id}/`
+Deletes the `TimeSpec` with `id = time_spec_id`.
+Success response example:
+```json
+{
+  "was_deleted": true,
+  "detail": "success",
+  "id": 2
+}
+```
+
 #### `[POST] /aptype/add/`
 Adds access point type. This is good for rules that need to affect multiple doors that need
 similar level of security.
@@ -298,3 +353,7 @@ Example response:
   "updated": "2021-01-22T18:27:28.322909"
 }
 ```
+
+#### `[DELETE] /aptype/delete/{ap_type_id}/`
+Deletes an `AccessPointType` with `id = ap_type_id`.
+Success response is similar to the one in `/timespec/delete/{time_spec_id}/`.
