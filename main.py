@@ -179,7 +179,12 @@ def delete_group(group_id: int, db: Session = Depends(get_db), current_user: Use
     db_group = crud.get_group_by_id(db=db, group_id=group_id)
     if not db_group:
         raise HTTPException(status_code=400, detail=f"Group with id {group_id} does not exist, therefore can't be deleted.")
-    return {'was_deleted': crud.delete_group(db=db, group_id=group_id)}
+    deleted, detail = crud.delete_group(db=db, group_id=group_id)
+    return {
+        'was_deleted': deleted,
+        'detail': detail,
+        'id': group_id,
+    }
 
 
 @app.post("/usergroup/add/", response_model=UserGroup)
@@ -189,14 +194,32 @@ def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db)
         raise HTTPException(status_code=400, detail=f"User with id {user_id} not found.")
     db_group = crud.get_group_by_id(db=db, group_id=group_id)
     if not db_group:
-        raise HTTPException(status_code=400, detail=f"Group with this id {group_id} not found.")
+        raise HTTPException(status_code=400, detail=f"Group with id {group_id} not found.")
     db_usergroup = crud.get_usergroup(db=db, user_id=user_id, group_id=group_id)
     if db_usergroup:
         raise HTTPException(status_code=400, detail=f"User with id {user_id} is already in a group with id {group_id}.")
     return crud.add_user_to_group(db=db, user_id=user_id, group_id=group_id)
 
 
-# TODO /usergroup/delete/
+@app.delete("/usergroup/delete/{user_id}/{group_id}/", response_model=UserGroupDelete)
+def delete_user_from_group(user_id: int, group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_user = crud.get_user_by_id(db=db, user_id=user_id)
+    if not db_user:
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} not found.")
+    db_group = crud.get_group_by_id(db=db, group_id=group_id)
+    if not db_group:
+        raise HTTPException(status_code=400, detail=f"Group with id {group_id} not found.")
+    db_usergroup = crud.get_usergroup(db=db, user_id=user_id, group_id=group_id)
+    if not db_usergroup:
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} is not in the group with id {group_id}, nothing to delete")
+    deleted, detail = crud.delete_user_from_group(db=db, usergroup_id=db_usergroup.id)
+    return {
+        'was_deleted': deleted,
+        'detail': detail,
+        'id': db_usergroup.id,
+        'user_id': user_id,
+        'group_id': group_id
+    }
 
 
 @app.post("/rules/add/", response_model=Rule)
@@ -213,7 +236,39 @@ def create_rule(rule: RuleBase, db: Session = Depends(get_db), current_user: Use
     return crud.create_rule(db=db, rule=rule)
 
 
-# TODO /rules/delete/
+@app.delete("/rules/delete/{rule_id}/")
+def delete_rule(rule_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_rule = crud.get_rule_by_id(db=db, rule_id=rule_id)
+    if not db_rule:
+        raise HTTPException(status_code=400, detail=f"Rule with id {rule_id} does not exist, nothing to delete.")
+    deleted, detail = crud.delete_rule(db=db, rule_id=rule_id)
+    return {
+        'was_deleted': deleted,
+        'detail': detail,
+        'id': rule_id
+    }
+
+
+# Allows or denies
+@app.post("/entry/eval/")
+def evaluate_entry(card: str, access_point_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    import logging
+    logger = logging.getLogger(__name__)
+
+    # TODO log entry attempt and result
+    group_ids = crud.get_groups_by_card(db=db, card=card)
+    if len(group_ids) == 0:
+        return {'allow': False}  # This user is not in any group, therefore there are no rules for him -> Deny
+    ap_type_id = crud.get_ap_type_id_by_ap_id(db=db, ap_id=access_point_id)
+    if not ap_type_id:
+        # TODO log error: No ap_type for this ap
+        return {'allow': False}  # Deny
+    rules = crud.get_rules_by_groups_and_ap_type(db=db, group_ids=group_ids, ap_type_id=ap_type_id)
+    # Highest priority first, if any rule of highest priority is allow, then allow. TODO decide whether this is good
+    priority_and_result = sorted([(x.priority, x.allow) for x in rules], reverse=True)
+    if len(priority_and_result) == 0:
+        return {'allow': False}
+    return {'allow': priority_and_result[0][1]}
 
 
 @app.post("/timespec/add/", response_model=TimeSpec)
@@ -224,7 +279,17 @@ def create_timespec(timespec: TimeSpecBase, db: Session = Depends(get_db), curre
     return crud.create_time_spec(db=db, time_spec=timespec)
 
 
-# TODO /timespec/delete/
+@app.delete("/timespec/delete/{time_spec_id}/")
+def delete_timespec(time_spec_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_timespec = crud.get_time_spec_by_id(db=db, time_spec_id=time_spec_id)
+    if not db_timespec:
+        raise HTTPException(status_code=400, detail=f"TimeSpec with id {time_spec_id} does not exist, nothing to delete.")
+    deleted, detail = crud.delete_time_spec(db=db, time_spec_id=time_spec_id)
+    return {
+        'was_deleted': deleted,
+        'detail': detail,
+        'id': time_spec_id
+    }
 
 
 @app.post("/aptype/add/", response_model=AccessPointType)
@@ -235,7 +300,17 @@ def create_aptype(aptype: AccessPointTypeBase, db: Session = Depends(get_db), cu
     return crud.create_ap_type(db=db, ap_type=aptype)
 
 
-# TODO /aptype/delete/
+@app.delete("/aptype/delete/{ap_type_id}/")
+def delete_aptype(ap_type_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    db_aptype = crud.get_ap_type_by_id(db=db, ap_type_id=ap_type_id)
+    if not db_aptype:
+        raise HTTPException(status_code=400, detail=f"APType with id {ap_type_id} does not exist, nothing to delete.")
+    deleted, detail = crud.delete_ap_type(db=db, ap_type_id=ap_type_id)
+    return {
+        'was_deleted': deleted,
+        'detail': detail,
+        'id': ap_type_id
+    }
 
 
 @app.post("/token/", response_model=Token)

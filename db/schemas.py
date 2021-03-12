@@ -12,6 +12,13 @@ class UserGroup(BaseModel):
         orm_mode = True
 
 
+class UserGroupDelete(UserGroup):
+    was_deleted: bool
+
+    class Config:
+        orm_mode = True
+
+
 class GroupRule(BaseModel):
     id: int
     group_id: int

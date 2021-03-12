@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
+from datetime import datetime
 
 from . import models, schemas
 
@@ -54,9 +55,11 @@ def delete_group(db: Session, group_id: int):
     try:
         db.query(models.Group).filter(models.Group.id == group_id).delete()
         db.commit()
-    except Exception:
-        return False
-    return True
+    # TODO catch specific exception, log it
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'
 
 
 def get_groups(db: Session, offset: int = 0, limit: int = 100):
@@ -81,6 +84,12 @@ def get_group_by_id(db: Session, group_id: int):
     return db.query(models.Group).filter(models.Group.id == group_id).first()
 
 
+def get_groups_by_card(db: Session, card: str):
+    user = db.query(models.User).filter(models.User.card == card).first()
+    usergroups = db.query(models.UserGroup).filter(models.UserGroup.user_id == user.id)
+    return set([x.group_id for x in usergroups])
+
+
 def get_usergroup(db: Session, user_id: int, group_id: int):
     return db.query(models.UserGroup).filter(and_(models.UserGroup.user_id == user_id, models.UserGroup.group_id == group_id)).first()
 
@@ -95,8 +104,41 @@ def add_user_to_group(db: Session, user_id: int, group_id: int):
     return db_usergroup
 
 
+def delete_user_from_group(db: Session, usergroup_id: int):
+    try:
+        db.query(models.UserGroup).filter(models.UserGroup.id == usergroup_id).delete()
+        db.commit()
+    # TODO catch specific exception, log it
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'
+
+
 def get_rule_by_name(db: Session, name: str):
     return db.query(models.Rule).filter(models.Rule.name == name).first()
+
+
+def get_rule_by_id(db: Session, rule_id: int):
+    return db.query(models.Rule).filter(models.Rule.id == rule_id).first()
+
+
+def get_rules_by_groups_and_ap_type(db: Session, group_ids: set, ap_type_id: int):
+    grouprules = db.query(models.GroupRule).filter(models.GroupRule.group_id.in_(group_ids))
+    rule_ids = [x.rule_id for x in grouprules]
+    dt = datetime.now()
+    # TODO maybe only query for 'priority' and 'allow'
+    rules = db.query(models.Rule)\
+        .join(models.TimeSpec)\
+        .filter(models.Rule.time_spec_id == models.TimeSpec.id)\
+        .filter(models.Rule.id.in_(rule_ids))\
+        .filter(models.Rule.ap_type_id == ap_type_id)\
+        .filter(models.TimeSpec.weekday_mask.op('&')(1 << dt.weekday()) > 0)\
+        .filter(models.TimeSpec.date_from <= dt)\
+        .filter(models.TimeSpec.date_to >= dt)\
+        .filter(models.TimeSpec.time_from <= dt.time())\
+        .filter(models.TimeSpec.time_to >= dt.time())
+    return rules
 
 
 def create_rule(db: Session, rule: schemas.RuleBase):
@@ -112,12 +154,30 @@ def create_rule(db: Session, rule: schemas.RuleBase):
     return db_rule
 
 
+def delete_rule(db: Session, rule_id: int):
+    try:
+        db.query(models.Rule).filter(models.Rule.id == rule_id).delete()
+        db.commit()
+    # TODO catch specific exception, log it
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'
+
+
 def get_ap_type_by_id(db: Session, ap_type_id: int):
     return db.query(models.AccessPointType).filter(models.AccessPointType.id == ap_type_id).first()
 
 
 def get_ap_type_by_name(db: Session, ap_type_name: str):
     return db.query(models.AccessPointType).filter(models.AccessPointType.name == ap_type_name).first()
+
+
+def get_ap_type_id_by_ap_id(db, ap_id):
+    aptype = db.query(models.AccessPoint).filter(models.AccessPoint.id == ap_id).first()
+    if not aptype:
+        return None
+    return aptype.id
 
 
 def create_ap_type(db: Session, ap_type: schemas.AccessPointTypeBase):
@@ -127,6 +187,17 @@ def create_ap_type(db: Session, ap_type: schemas.AccessPointTypeBase):
     db.add(db_ap_type)
     db.commit()
     return db_ap_type
+
+
+def delete_ap_type(db: Session, ap_type_id: int):
+    try:
+        db.query(models.AccessPointType).filter(models.AccessPointType.id == ap_type_id).delete()
+        db.commit()
+    # TODO catch specific exception, log it
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'
 
 
 def get_time_spec_by_id(db: Session, time_spec_id: int):
@@ -149,3 +220,14 @@ def create_time_spec(db: Session, time_spec: schemas.TimeSpecBase):
     db.add(db_time_spec)
     db.commit()
     return db_time_spec
+
+
+def delete_time_spec(db: Session, time_spec_id: int):
+    try:
+        db.query(models.TimeSpec).filter(models.TimeSpec.id == time_spec_id).delete()
+        db.commit()
+    # TODO catch specific exception, log it
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'
