@@ -13,10 +13,12 @@ from jose import JWTError, jwt
 
 from datetime import datetime, timedelta
 
-import exceptions
-
+from logging import config as logconf
 import logging
-logger = logging.getLogger(__name__)
+
+logconf.fileConfig('logging.conf', disable_existing_loggers=False)
+access_logger = logging.getLogger('access')
+access_logger.info('tralala')
 
 
 app = FastAPI()
@@ -257,9 +259,6 @@ def delete_rule(rule_id: int, db: Session = Depends(get_db), current_user: User 
 # Allows or denies
 @app.post("/entry/eval/")
 def evaluate_entry(card: str, access_point_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    import logging
-    logger = logging.getLogger(__name__)
-
     # TODO log entry attempt and result
     group_ids = crud.get_groups_by_card(db=db, card=card)
     if len(group_ids) == 0:
