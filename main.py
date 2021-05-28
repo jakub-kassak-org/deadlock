@@ -15,13 +15,12 @@ from datetime import datetime, timedelta
 
 from logging import config as logconf
 import logging
+import log_messages
 
+# Setup loggers
 logconf.fileConfig('logging.conf', disable_existing_loggers=False)
 access_logger = logging.getLogger('access')
-access_logger.info('tralala')
-
 root_logger = logging.getLogger('root')
-root_logger.debug('hehehe')
 
 
 app = FastAPI()
@@ -262,19 +261,24 @@ def delete_rule(rule_id: int, db: Session = Depends(get_db), current_user: User 
 # Allows or denies
 @app.post("/entry/eval/")
 def evaluate_entry(card: str, access_point_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    # TODO log entry attempt and result
     group_ids = crud.get_groups_by_card(db=db, card=card)
     if len(group_ids) == 0:
+        access_logger.info(f'({card}, {access_point_id}) - {log_messages.DENY}: {log_messages.MSG_USR_NOT_IN_ANY_GROUP}')
         return {'allow': False}  # This user is not in any group, therefore there are no rules for him -> Deny
     ap_type_id = crud.get_ap_type_id_by_ap_id(db=db, ap_id=access_point_id)
     if not ap_type_id:
-        # TODO log error: No ap_type for this ap
+        # No ap_type for this ap
+        access_logger.error(f'({card}, {access_point_id}) - {log_messages.DENY}: {log_messages.MSG_NO_AP_TYPE_FOR_THIS_AP}')
         return {'allow': False}  # Deny
     rules = crud.get_rules_by_groups_and_ap_type(db=db, group_ids=group_ids, ap_type_id=ap_type_id)
     # Highest priority first, if any rule of highest priority is allow, then allow. TODO decide whether this is good
     priority_and_result = sorted([(x.priority, x.allow) for x in rules], reverse=True)
     if len(priority_and_result) == 0:
+        access_logger.info(f'({card}, {access_point_id}) - {log_messages.DENY}: {log_messages.MSG_NO_RULES_FOR_USER}')
         return {'allow': False}
+    access_logger.info(
+        f'({card}, {access_point_id}) - {(log_messages.ALLOW if priority_and_result[0][1] else log_messages.DENY)}: Decided by a rule'
+    )
     return {'allow': priority_and_result[0][1]}
 
 
