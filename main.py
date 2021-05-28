@@ -20,6 +20,9 @@ logconf.fileConfig('logging.conf', disable_existing_loggers=False)
 access_logger = logging.getLogger('access')
 access_logger.info('tralala')
 
+root_logger = logging.getLogger('root')
+root_logger.debug('hehehe')
+
 
 app = FastAPI()
 
