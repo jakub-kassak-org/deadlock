@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from db import models, crud
@@ -152,6 +153,19 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User 
     deleted, detail = crud.delete_user(db=db, user_id=user_id)
     return {
         'was_deleted': deleted,
+        'detail': detail,
+        'id': user_id
+    }
+
+
+@app.put("/users/update/{user_id}/")
+def update_user(user_id: int, updated_user: UserBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_user = crud.get_user_by_id(db, user_id=user_id)
+    if not db_user:
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} does not exist, therefore can't be updated.")
+    updated, detail = crud.update_user(db=db, user_id=user_id, data=updated_user)
+    return {
+        'was_updated': updated,
         'detail': detail,
         'id': user_id
     }

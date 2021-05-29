@@ -46,6 +46,23 @@ def delete_user(db: Session, user_id: int) -> Tuple[bool, str]:
     return True, 'success'
 
 
+def update_user(db: Session, user_id: int, data: schemas.UserBase) -> Tuple[bool, str]:
+    try:
+        db.query(models.User).filter(models.User.id == user_id).update({
+            'card': data.card,
+            'username': data.username,
+            'first_name': data.first_name,
+            'last_name': data.last_name,
+            'is_staff': data.is_staff
+        })
+        db.commit()
+    # TODO catch specific exception, log it
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'
+
+
 def create_group(db: Session, group: schemas.GroupCreate) -> models.Group:
     db_group = models.Group(name=group.name)
     db.add(db_group)
