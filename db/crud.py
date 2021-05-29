@@ -2,8 +2,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from datetime import datetime
 from typing import List, Tuple, Optional, Set
+import logging
 
 from . import models, schemas
+
+runtime_logger = logging.getLogger('runtime')
 
 
 def get_users(db: Session, offset: int = 0, limit: int = 100) -> List[models.User]:
@@ -39,9 +42,9 @@ def delete_user(db: Session, user_id: int) -> Tuple[bool, str]:
     try:
         db.query(models.User).filter(models.User.id == user_id).delete()
         db.commit()
-    # TODO catch specific exception, log it
     except Exception as e:
-        print(e)
+        runtime_logger.exception(e)
+        # print(e)
         return False, str(e)
     return True, 'success'
 
@@ -75,9 +78,9 @@ def delete_group(db: Session, group_id: int) -> Tuple[bool, str]:
     try:
         db.query(models.Group).filter(models.Group.id == group_id).delete()
         db.commit()
-    # TODO catch specific exception, log it
     except Exception as e:
-        print(e)
+        runtime_logger.exception(e)
+        # print(e)
         return False, str(e)
     return True, 'success'
 
@@ -141,9 +144,9 @@ def delete_user_from_group(db: Session, usergroup_id: int) -> Tuple[bool, str]:
     try:
         db.query(models.UserGroup).filter(models.UserGroup.id == usergroup_id).delete()
         db.commit()
-    # TODO catch specific exception, log it
     except Exception as e:
-        print(e)
+        runtime_logger.exception(e)
+        # print(e)
         return False, str(e)
     return True, 'success'
 
@@ -191,9 +194,8 @@ def delete_rule(db: Session, rule_id: int) -> Tuple[bool, str]:
     try:
         db.query(models.Rule).filter(models.Rule.id == rule_id).delete()
         db.commit()
-    # TODO catch specific exception, log it
     except Exception as e:
-        print(e)
+        runtime_logger.exception(e)
         return False, str(e)
     return True, 'success'
 
@@ -226,9 +228,8 @@ def delete_ap_type(db: Session, ap_type_id: int) -> Tuple[bool, str]:
     try:
         db.query(models.AccessPointType).filter(models.AccessPointType.id == ap_type_id).delete()
         db.commit()
-    # TODO catch specific exception, log it
     except Exception as e:
-        print(e)
+        runtime_logger.exception(e)
         return False, str(e)
     return True, 'success'
 
@@ -259,8 +260,7 @@ def delete_time_spec(db: Session, time_spec_id: int) -> Tuple[bool, str]:
     try:
         db.query(models.TimeSpec).filter(models.TimeSpec.id == time_spec_id).delete()
         db.commit()
-    # TODO catch specific exception, log it
     except Exception as e:
-        print(e)
+        runtime_logger.exception(e)
         return False, str(e)
     return True, 'success'

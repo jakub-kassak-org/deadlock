@@ -35,16 +35,20 @@ uvicorn main:app --reload
 
 ### How to log
 Logging configuration is in `logging.conf`.
-There are 2 loggers in `main.py`.
+There are 3 loggers in `main.py`.
 
 First of them is `access_logger`, which is used
 for access logs into a file (`access.log`).
 
+Access logging happens in `/entry/eval/` endpoint. Log file shows a pair
+`(card_number, access_point_id)` in every log.
+
 Second of them, `root_logger` can be used to print to `stdout`. One can use
 `root_logger.info('message to print to stdout')` for this.
 
-Access logging happens in `/entry/eval/` endpoint. Log file shows a pair
-`(card_number, access_point_id)` in every log.
+Third of them is `runtime_logger`, which is used
+for runtime logs, such as runtime exceptions. It
+logs into a file (`runtime.log`).
 
 ## Interaction with API
 
