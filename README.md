@@ -33,12 +33,17 @@ psql -f fixtures.sql
 uvicorn main:app --reload
 ```
 
-### How to print logs
-```python
-import logging
-logger = logging.getLogger(__name__)
-logger.warning("Hi")
-```
+### How to log
+Logging configuration is in `logging.conf`.
+There are 2 loggers in `main.py`.
+
+First of them is `access_logger`, which is used
+for access logs into a file (`access.log`).
+
+Second of them, `root_logger` can be used to print to `stdout`. One can use
+`root_logger.info('message to print to stdout')` for this.
+
+Access logging happens in `/entry/eval/` endpoint.
 
 ## Interaction with API
 
