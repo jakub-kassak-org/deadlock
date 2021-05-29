@@ -151,6 +151,7 @@ class Controller(Base):
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
 
 
+# TODO toto asi nechceme, asi budeme logovat skor do suborov ako do databazy
 class AccessLog(Base):
     __tablename__ = 'access_log'
 
