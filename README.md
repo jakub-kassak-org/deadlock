@@ -43,7 +43,8 @@ for access logs into a file (`access.log`).
 Second of them, `root_logger` can be used to print to `stdout`. One can use
 `root_logger.info('message to print to stdout')` for this.
 
-Access logging happens in `/entry/eval/` endpoint.
+Access logging happens in `/entry/eval/` endpoint. Log file shows a pair
+`(card_number, access_point_id)` in every log.
 
 ## Interaction with API
 
