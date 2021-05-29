@@ -21,6 +21,7 @@ import log_messages
 logconf.fileConfig('logging.conf', disable_existing_loggers=False)
 access_logger = logging.getLogger('access')
 root_logger = logging.getLogger('root')
+runtime_logger = logging.getLogger('runtime')
 
 
 app = FastAPI()
