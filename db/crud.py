@@ -1,27 +1,28 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from datetime import datetime
+from typing import List, Tuple, Optional, Set
 
 from . import models, schemas
 
 
-def get_users(db: Session, offset: int = 0, limit: int = 100):
+def get_users(db: Session, offset: int = 0, limit: int = 100) -> List[models.User]:
     return db.query(models.User).offset(offset).limit(limit).all()
 
 
-def get_user_by_card(db: Session, card: str):
+def get_user_by_card(db: Session, card: str) -> models.User:
     return db.query(models.User).filter(models.User.card == card).first()
 
 
-def get_user_by_username(db: Session, username: str):
+def get_user_by_username(db: Session, username: str) -> models.User:
     return db.query(models.User).filter(models.User.username == username).first()
 
 
-def get_user_by_id(db: Session, user_id: int):
+def get_user_by_id(db: Session, user_id: int) -> models.User:
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 
-def create_user(db: Session, user_base: schemas.UserBase):
+def create_user(db: Session, user_base: schemas.UserBase) -> models.User:
     user = models.User(
         card=user_base.card,
         username=user_base.username,
@@ -34,7 +35,7 @@ def create_user(db: Session, user_base: schemas.UserBase):
     return user
 
 
-def delete_user(db: Session, user_id: int):
+def delete_user(db: Session, user_id: int) -> Tuple[bool, str]:
     try:
         db.query(models.User).filter(models.User.id == user_id).delete()
         db.commit()
@@ -45,7 +46,7 @@ def delete_user(db: Session, user_id: int):
     return True, 'success'
 
 
-def create_group(db: Session, group: schemas.GroupCreate):
+def create_group(db: Session, group: schemas.GroupCreate) -> models.Group:
     db_group = models.Group(name=group.name)
     db.add(db_group)
     db.commit()
@@ -53,7 +54,7 @@ def create_group(db: Session, group: schemas.GroupCreate):
     return db_group
 
 
-def delete_group(db: Session, group_id: int):
+def delete_group(db: Session, group_id: int) -> Tuple[bool, str]:
     try:
         db.query(models.Group).filter(models.Group.id == group_id).delete()
         db.commit()
@@ -64,11 +65,11 @@ def delete_group(db: Session, group_id: int):
     return True, 'success'
 
 
-def get_groups(db: Session, offset: int = 0, limit: int = 100):
+def get_groups(db: Session, offset: int = 0, limit: int = 100) -> List[models.Group]:
     return db.query(models.Group).offset(offset).limit(limit).all()
 
 
-def get_users_from_group(db: Session, group_id: int):
+def get_users_from_group(db: Session, group_id: int) -> Optional[List[models.User]]:
     db_group = db.query(models.Group).filter(models.Group.id == group_id).first()
     if not db_group:
         return None
@@ -78,25 +79,25 @@ def get_users_from_group(db: Session, group_id: int):
     return users
 
 
-def get_group_by_name(db: Session, name: str):
+def get_group_by_name(db: Session, name: str) -> models.Group:
     return db.query(models.Group).filter(models.Group.name == name).first()
 
 
-def get_group_by_id(db: Session, group_id: int):
+def get_group_by_id(db: Session, group_id: int) -> models.Group:
     return db.query(models.Group).filter(models.Group.id == group_id).first()
 
 
-def get_groups_by_card(db: Session, card: str):
+def get_groups_by_card(db: Session, card: str) -> Set[models.Group]:
     user = db.query(models.User).filter(models.User.card == card).first()
     usergroups = db.query(models.UserGroup).filter(models.UserGroup.user_id == user.id)
     return set([x.group_id for x in usergroups])
 
 
-def get_usergroup(db: Session, user_id: int, group_id: int):
+def get_usergroup(db: Session, user_id: int, group_id: int) -> models.UserGroup:
     return db.query(models.UserGroup).filter(and_(models.UserGroup.user_id == user_id, models.UserGroup.group_id == group_id)).first()
 
 
-def add_user_to_group(db: Session, user_id: int, group_id: int):
+def add_user_to_group(db: Session, user_id: int, group_id: int) -> models.UserGroup:
     db_usergroup = models.UserGroup(
         user_id=user_id,
         group_id=group_id
@@ -106,7 +107,7 @@ def add_user_to_group(db: Session, user_id: int, group_id: int):
     return db_usergroup
 
 
-def delete_user_from_group(db: Session, usergroup_id: int):
+def delete_user_from_group(db: Session, usergroup_id: int) -> Tuple[bool, str]:
     try:
         db.query(models.UserGroup).filter(models.UserGroup.id == usergroup_id).delete()
         db.commit()
@@ -117,15 +118,15 @@ def delete_user_from_group(db: Session, usergroup_id: int):
     return True, 'success'
 
 
-def get_rule_by_name(db: Session, name: str):
+def get_rule_by_name(db: Session, name: str) -> models.Rule:
     return db.query(models.Rule).filter(models.Rule.name == name).first()
 
 
-def get_rule_by_id(db: Session, rule_id: int):
+def get_rule_by_id(db: Session, rule_id: int) -> models.Rule:
     return db.query(models.Rule).filter(models.Rule.id == rule_id).first()
 
 
-def get_rules_by_groups_and_ap_type(db: Session, group_ids: set, ap_type_id: int):
+def get_rules_by_groups_and_ap_type(db: Session, group_ids: set, ap_type_id: int) -> List[models.Rule]:
     grouprules = db.query(models.GroupRule).filter(models.GroupRule.group_id.in_(group_ids))
     rule_ids = [x.rule_id for x in grouprules]
     dt = datetime.now()
@@ -143,7 +144,7 @@ def get_rules_by_groups_and_ap_type(db: Session, group_ids: set, ap_type_id: int
     return rules
 
 
-def create_rule(db: Session, rule: schemas.RuleBase):
+def create_rule(db: Session, rule: schemas.RuleBase) -> models.Rule:
     db_rule = models.Rule(
         name=rule.name,
         allow=rule.allow,
@@ -156,7 +157,7 @@ def create_rule(db: Session, rule: schemas.RuleBase):
     return db_rule
 
 
-def delete_rule(db: Session, rule_id: int):
+def delete_rule(db: Session, rule_id: int) -> Tuple[bool, str]:
     try:
         db.query(models.Rule).filter(models.Rule.id == rule_id).delete()
         db.commit()
@@ -167,22 +168,22 @@ def delete_rule(db: Session, rule_id: int):
     return True, 'success'
 
 
-def get_ap_type_by_id(db: Session, ap_type_id: int):
+def get_ap_type_by_id(db: Session, ap_type_id: int) -> models.AccessPointType:
     return db.query(models.AccessPointType).filter(models.AccessPointType.id == ap_type_id).first()
 
 
-def get_ap_type_by_name(db: Session, ap_type_name: str):
+def get_ap_type_by_name(db: Session, ap_type_name: str) -> models.AccessPointType:
     return db.query(models.AccessPointType).filter(models.AccessPointType.name == ap_type_name).first()
 
 
-def get_ap_type_id_by_ap_id(db, ap_id):
+def get_ap_type_id_by_ap_id(db, ap_id) -> Optional[int]:
     aptype = db.query(models.AccessPoint).filter(models.AccessPoint.id == ap_id).first()
     if not aptype:
         return None
     return aptype.id
 
 
-def create_ap_type(db: Session, ap_type: schemas.AccessPointTypeBase):
+def create_ap_type(db: Session, ap_type: schemas.AccessPointTypeBase) -> models.AccessPointType:
     db_ap_type = models.AccessPointType(
         name=ap_type.name
     )
@@ -191,7 +192,7 @@ def create_ap_type(db: Session, ap_type: schemas.AccessPointTypeBase):
     return db_ap_type
 
 
-def delete_ap_type(db: Session, ap_type_id: int):
+def delete_ap_type(db: Session, ap_type_id: int) -> Tuple[bool, str]:
     try:
         db.query(models.AccessPointType).filter(models.AccessPointType.id == ap_type_id).delete()
         db.commit()
@@ -202,15 +203,15 @@ def delete_ap_type(db: Session, ap_type_id: int):
     return True, 'success'
 
 
-def get_time_spec_by_id(db: Session, time_spec_id: int):
+def get_time_spec_by_id(db: Session, time_spec_id: int) -> models.TimeSpec:
     return db.query(models.TimeSpec).filter(models.TimeSpec.id == time_spec_id).first()
 
 
-def get_time_spec_by_title(db: Session, time_spec_title: str):
+def get_time_spec_by_title(db: Session, time_spec_title: str) -> models.TimeSpec:
     return db.query(models.TimeSpec).filter(models.TimeSpec.title == time_spec_title).first()
 
 
-def create_time_spec(db: Session, time_spec: schemas.TimeSpecBase):
+def create_time_spec(db: Session, time_spec: schemas.TimeSpecBase) -> models.TimeSpec:
     db_time_spec = models.TimeSpec(
         title=time_spec.title,
         weekday_mask=time_spec.weekday_mask,
@@ -224,7 +225,7 @@ def create_time_spec(db: Session, time_spec: schemas.TimeSpecBase):
     return db_time_spec
 
 
-def delete_time_spec(db: Session, time_spec_id: int):
+def delete_time_spec(db: Session, time_spec_id: int) -> Tuple[bool, str]:
     try:
         db.query(models.TimeSpec).filter(models.TimeSpec.id == time_spec_id).delete()
         db.commit()
