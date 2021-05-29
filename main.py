@@ -21,6 +21,7 @@ import log_messages
 logconf.fileConfig('logging.conf', disable_existing_loggers=False)
 access_logger = logging.getLogger('access')
 root_logger = logging.getLogger('root')
+runtime_logger = logging.getLogger('runtime')
 
 
 app = FastAPI()
@@ -100,15 +101,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
             raise credentials_exception
         token_data = TokenData(username=username)
     except JWTError:
+        runtime_logger.error('JWTError: main.py/get_current_user')
         raise credentials_exception
     user = get_user(db, username=token_data.username)
     if user is None:
+        runtime_logger.error('user is None: main.py/get_current_user')
         raise credentials_exception
     return user
 
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
     if current_user.disabled:
+        runtime_logger.error('current_user.disabled: main.py/get_current_active_user')
         raise HTTPException(status_code=400, detail="Inactive user.")
     return current_user
 
