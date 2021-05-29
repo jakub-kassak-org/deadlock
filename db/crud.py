@@ -82,6 +82,19 @@ def delete_group(db: Session, group_id: int) -> Tuple[bool, str]:
     return True, 'success'
 
 
+def update_group(db: Session, group_id: int, data: schemas.GroupCreate) -> Tuple[bool, str]:
+    try:
+        db.query(models.Group).filter(models.Group.id == group_id).update({
+            'name': data.name,
+        })
+        db.commit()
+    # TODO catch specific exception, log it
+    except Exception as e:
+        print(e)
+        return False, str(e)
+    return True, 'success'
+
+
 def get_groups(db: Session, offset: int = 0, limit: int = 100) -> List[models.Group]:
     return db.query(models.Group).offset(offset).limit(limit).all()
 

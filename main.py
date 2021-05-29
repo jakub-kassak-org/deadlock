@@ -210,6 +210,19 @@ def delete_group(group_id: int, db: Session = Depends(get_db), current_user: Use
     }
 
 
+@app.put("/groups/update/{group_id}/")
+def update_group(group_id: int, updated_group: GroupCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_group = crud.get_group_by_id(db, group_id=group_id)
+    if not db_group:
+        raise HTTPException(status_code=400, detail=f"Group with id {group_id} does not exist, therefore can't be updated.")
+    updated, detail = crud.update_group(db=db, group_id=group_id, data=updated_group)
+    return {
+        'was_updated': updated,
+        'detail': detail,
+        'id': group_id
+    }
+
+
 @app.post("/usergroup/add/", response_model=UserGroup)
 def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_id(db=db, user_id=user_id)
