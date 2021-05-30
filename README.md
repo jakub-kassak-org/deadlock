@@ -144,6 +144,30 @@ Deletes user with `id = user_id`. Example response:
 }
 ```
 
+#### `[PUT] /users/update/{user_id}/`
+Updates a user with `id = user_id`. Gets all data just like when creating user
+(`UserCreate` schema in `db/schemas.py`)
+
+Example request:
+```json 
+{
+  "card": "123456789",
+  "username": "new_username",
+  "first_name": "OriginalFirst",
+  "last_name": "OriginalLast",
+  "is_staff": false
+}
+```
+
+Success response:
+```json
+{
+  "was_updated": true,
+  "detail": "success",
+  "id": 4
+}
+```
+
 #### `[GET] /users/me/`
 Gets current user:
 ```json
@@ -239,6 +263,27 @@ Example response to `GET` from `/groups/2`:
 #### `[DELETE] /groups/delete/{group_id}/`
 Deleted a group with `id = group_id`. Response similar to the one described
 in `/users/delete/{user_id}/`
+
+#### `[PUT] /groups/update/{group_id}/`
+Updates a group with `id = group_id`. Gets only name, just like when creating a group.
+(`GroupCreate` schema in `db/schemas.py`). This is not for updating group's rules.
+For assigning rules to the group, use TODO instead.
+
+Example request:
+```json 
+{
+  "name": "new_group_name",
+}
+```
+
+Success response:
+```json
+{
+  "was_updated": true,
+  "detail": "success",
+  "id": 1
+}
+```
 
 #### `[POST] /usergroup/add/`
 Adds a user with with id `user_id` to the group with id `group_id`.

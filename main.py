@@ -161,6 +161,19 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User 
     }
 
 
+@app.put("/users/update/{user_id}/")
+def update_user(user_id: int, updated_user: UserBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_user = crud.get_user_by_id(db, user_id=user_id)
+    if not db_user:
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} does not exist, therefore can't be updated.")
+    updated, detail = crud.update_user(db=db, user_id=user_id, data=updated_user)
+    return {
+        'was_updated': updated,
+        'detail': detail,
+        'id': user_id
+    }
+
+
 @app.get("/groups/")
 async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     groups = crud.get_groups(db, offset=offset, limit=limit)
@@ -197,6 +210,19 @@ def delete_group(group_id: int, db: Session = Depends(get_db), current_user: Use
         'was_deleted': deleted,
         'detail': detail,
         'id': group_id,
+    }
+
+
+@app.put("/groups/update/{group_id}/")
+def update_group(group_id: int, updated_group: GroupCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_group = crud.get_group_by_id(db, group_id=group_id)
+    if not db_group:
+        raise HTTPException(status_code=400, detail=f"Group with id {group_id} does not exist, therefore can't be updated.")
+    updated, detail = crud.update_group(db=db, group_id=group_id, data=updated_group)
+    return {
+        'was_updated': updated,
+        'detail': detail,
+        'id': group_id
     }
 
 
@@ -341,6 +367,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "Bearer"}
 
 
