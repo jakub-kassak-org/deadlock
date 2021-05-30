@@ -285,6 +285,29 @@ Success response:
 }
 ```
 
+#### `[GET] /groups/by_ap_type_and_time_spec/`
+Given `ap_type_id` and `time_spec_id` (mandatory query parameters),
+returns a list of group names, that use access points
+of that `AccessPointType` during the time specified by `TimeSpec`. Rules are searched and filtered
+using the `TimeSpec` and `AccessPointType`, so the `TimeSpec` has to match the one in rule exactly.
+Therefore, rules with `TimeSpec` that is _superset_ of the given one won't be matched and
+groups with those rules won't be included in a response, unless an exact rule for that group is found.
+
+To get an `time_spec_id` from weekday and time range, one can use the `/timespec/get_ids/` endpoint,
+if needed.
+
+Example response:
+```json
+{
+  "groups": [
+    {
+      "id": 1,
+      "name": "Linux PP"
+    }
+  ]
+}
+```
+
 #### `[POST] /usergroup/add/`
 Adds a user with with id `user_id` to the group with id `group_id`.
 Just make `POST` request to address like `/usergroup/add/?user_id=3&group_id=1`.
@@ -387,6 +410,28 @@ Success response example:
   "id": 2
 }
 ```
+
+#### `[GET] /timespec/get_ids/`
+Gets a list of `TimeSpec` `id`s, that exactly match `weekday`, `time_from` and `time_to`.
+Does not take `date_from` and `date_to` into account, but returns information about
+those dates.
+
+Takes mandatory query parameters of `weekday` (0-6, where 0 = Monday), `time_from` (string of `hh:mm`)
+and `time_to` (string of `hh:mm`).
+
+Response example:
+```json
+[
+  {
+    "id": 1,
+    "weekday_mask": 31,
+    "time_from": "17:00:00",
+    "time_to": "22:00:00",
+    "date_from": "2021-03-12T19:48:16.104465",
+    "date_to": "2022-01-01T00:00:00"
+  }
+]
+``` 
 
 #### `[POST] /aptype/add/`
 Adds access point type. This is good for rules that need to affect multiple doors that need

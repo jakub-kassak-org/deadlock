@@ -267,7 +267,29 @@ def delete_time_spec(db: Session, time_spec_id: int) -> Tuple[bool, str]:
     return True, 'success'
 
 
-def get_groups_by_ap_type_and_time_spec(db: Session, ap_type_id: int, time_spec_id: int) -> List[models.Group]:
+# Does not take date_from and date_to into account, returns all that match weekday, time_from, time_to
+def get_time_spec_by_datetimes(db: Session, weekday: int, time_from: datetime.time, time_to: datetime.time) -> List[dict]:
+    time_specs = db.query(models.TimeSpec).filter(
+                    and_(
+                        models.TimeSpec.weekday_mask.op('&')(1 << weekday) > 0,
+                        models.TimeSpec.time_from == time_from,
+                        models.TimeSpec.time_to == time_to
+                    )
+                )
+    return [
+        {
+            'id': ts.id,
+            'weekday_mask': ts.weekday_mask,
+            'time_from': ts.time_from,
+            'time_to': ts.time_to,
+            'date_from': ts.date_from,
+            'date_to': ts.date_to
+        }
+        for ts in time_specs
+    ]
+
+
+def get_groups_by_ap_type_and_time_spec(db: Session, ap_type_id: int, time_spec_id: int) -> List[dict]:
     rules = db.query(models.Rule).filter(
                 and_(models.Rule.ap_type_id == ap_type_id, models.Rule.time_spec_id == time_spec_id)
             )

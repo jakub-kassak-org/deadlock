@@ -11,7 +11,7 @@ from typing import Optional
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 from logging import config as logconf
 import logging
@@ -181,9 +181,6 @@ def get_groups_by_ap_type_and_time_spec(ap_type_id: int, time_spec_id: int, db: 
     return {'groups': db_groups}
 
 
-# TODO este pridat endpoint ktory podla weekday, time_from, time_to vrati time_spec_id
-
-
 @app.get("/groups/")
 async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     groups = crud.get_groups(db, offset=offset, limit=limit)
@@ -341,6 +338,21 @@ def delete_timespec(time_spec_id: int, db: Session = Depends(get_db), current_us
         'detail': detail,
         'id': time_spec_id
     }
+
+
+@app.get("/timespec/get_ids/")
+def get_timespec_ids(weekday: int, time_from: str, time_to: str, db: Session = Depends(get_db),
+                    current_user: User = Depends(get_current_active_user)):
+    hour_minutes: List[List[int, int], List[int, int]] = [[int(x) for x in t.split(':')] for t in [time_from, time_to]]
+    for i in range(2):
+        if not 0 <= hour_minutes[i][0] <= 23:
+            raise HTTPException(status_code=400, detail=f"Hour has to be from range [0, 23].")
+        elif not 0 <= hour_minutes[i][1] <= 59:
+            raise HTTPException(status_code=400, detail=f"Minute has to be from range[0, 59].")
+    t_from = time(hour=hour_minutes[0][0], minute=hour_minutes[0][1])
+    t_to = time(hour=hour_minutes[1][0], minute=hour_minutes[1][1])
+    timespec_ids = crud.get_time_spec_by_datetimes(db=db, weekday=weekday, time_from=t_from, time_to=t_to)
+    return timespec_ids
 
 
 @app.post("/aptype/add/", response_model=AccessPointType)
