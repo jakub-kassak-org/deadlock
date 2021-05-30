@@ -174,6 +174,16 @@ def update_user(user_id: int, updated_user: UserBase, db: Session = Depends(get_
     }
 
 
+@app.get("/groups/by_ap_type_and_time_spec/")
+def get_groups_by_ap_type_and_time_spec(ap_type_id: int, time_spec_id: int, db: Session = Depends(get_db),
+                                              current_user: User = Depends(get_current_active_user)):
+    db_groups = crud.get_groups_by_ap_type_and_time_spec(db=db, ap_type_id=ap_type_id, time_spec_id=time_spec_id)
+    return {'groups': db_groups}
+
+
+# TODO este pridat endpoint ktory podla weekday, time_from, time_to vrati time_spec_id
+
+
 @app.get("/groups/")
 async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     groups = crud.get_groups(db, offset=offset, limit=limit)
@@ -368,5 +378,3 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "Bearer"}
-
-
