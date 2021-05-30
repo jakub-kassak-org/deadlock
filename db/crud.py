@@ -1,11 +1,12 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 from datetime import datetime
 from typing import List, Tuple, Optional, Set
 import logging
 
 from . import models, schemas
 
+root_logger = logging.getLogger('root')
 runtime_logger = logging.getLogger('runtime')
 
 
@@ -264,3 +265,37 @@ def delete_time_spec(db: Session, time_spec_id: int) -> Tuple[bool, str]:
         runtime_logger.exception(e)
         return False, str(e)
     return True, 'success'
+
+
+# Does not take date_from and date_to into account, returns all that match weekday, time_from, time_to
+def get_time_spec_by_datetimes(db: Session, weekday: int, time_from: datetime.time, time_to: datetime.time) -> List[dict]:
+    time_specs = db.query(models.TimeSpec).filter(
+                    and_(
+                        models.TimeSpec.weekday_mask.op('&')(1 << weekday) > 0,
+                        models.TimeSpec.time_from == time_from,
+                        models.TimeSpec.time_to == time_to
+                    )
+                )
+    return [
+        {
+            'id': ts.id,
+            'weekday_mask': ts.weekday_mask,
+            'time_from': ts.time_from,
+            'time_to': ts.time_to,
+            'date_from': ts.date_from,
+            'date_to': ts.date_to
+        }
+        for ts in time_specs
+    ]
+
+
+def get_groups_by_ap_type_and_time_spec(db: Session, ap_type_id: int, time_spec_id: int) -> List[dict]:
+    rules = db.query(models.Rule).filter(
+                and_(models.Rule.ap_type_id == ap_type_id, models.Rule.time_spec_id == time_spec_id)
+            )
+    rule_ids = [rule.id for rule in rules]
+    grouprules = db.query(models.GroupRule).filter(models.GroupRule.id.in_(rule_ids))
+    group_ids = [grouprule.group_id for grouprule in grouprules]
+    groups = db.query(models.Group).filter(models.Group.id.in_(group_ids))
+    result = [{'id': group.id, 'name': group.name} for group in groups]
+    return result
