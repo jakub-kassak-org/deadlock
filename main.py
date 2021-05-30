@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from db import models, crud
