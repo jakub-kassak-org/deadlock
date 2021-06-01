@@ -223,7 +223,8 @@ Response example:
 }
 ```
 where `rules` contains ids of rules that are applied for this group, which is initially
-empty after creating the group.
+empty after creating the group. `[POST] /groups/{group_id}/change_ruleset/` could
+be used to modify rules of the group afterwards.
 
 #### `[GET] /groups/{group_id}/`
 Gets list of users belonging to group with id `{group_id}`.
@@ -280,6 +281,34 @@ Success response:
 ```json
 {
   "was_updated": true,
+  "detail": "success",
+  "id": 1
+}
+```
+
+#### `[POST] /groups/{group_id}/change_ruleset/`
+Modifies a ruleset of the group with `id=group_id`. Takes two sets of ids.
+First of them is `include_rules_ids`, which says what rules should be added for the
+group. Second of them is `exclude_rules_ids`, which says what rules should be
+removed from the rules. It the same id is in both `include_rules_ids` and `exclude_rules_ids`,
+it will not be included in the final ruleset.
+
+Let the ids of rules originally in the ruleset be `original_rules_ids`. The reusulting
+ruleset is calculated as `(original_rules_ids + include_rules_ids) - exclude_rules_ids`,
+where `+` stands for set union and `-` stands for set difference.
+
+Example request (`group_id` goes to the URL):
+```json
+{
+  "include_rules_ids": [3, 6],
+  "exclude_rules_ids": [1, 2]
+}
+```
+
+Success response example:
+```json
+{
+  "updated": true,
   "detail": "success",
   "id": 1
 }

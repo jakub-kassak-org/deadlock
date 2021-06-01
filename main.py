@@ -189,7 +189,7 @@ async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(ge
 
 # Returns list of users from this group
 @app.get("/groups/{group_id}/")
-async def get_groups(group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+async def get_group(group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     users_in_group = crud.get_users_from_group(db=db, group_id=group_id)
     if not users_in_group:
         raise HTTPException(status_code=400, detail=f"Group with id {group_id} was not found.")
@@ -228,6 +228,25 @@ def update_group(group_id: int, updated_group: GroupCreate, db: Session = Depend
     updated, detail = crud.update_group(db=db, group_id=group_id, data=updated_group)
     return {
         'was_updated': updated,
+        'detail': detail,
+        'id': group_id
+    }
+
+
+@app.post("/groups/{group_id}/change_ruleset/")
+def change_ruleset_of_group(group_id: int, include_rules_ids: List[int], exclude_rules_ids: List[int],
+                            db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    include_rules_cnt = crud.get_rules_by_ids(db=db, rules_ids=include_rules_ids).count()
+    if include_rules_cnt != len(include_rules_ids):
+        raise HTTPException(status_code=400, detail="At least one rule id in include_rules_ids does not exist in the database.")
+    exclude_rules_cnt = crud.get_rules_by_ids(db=db, rules_ids=exclude_rules_ids).count()
+    if exclude_rules_cnt != len(exclude_rules_ids):
+        raise HTTPException(status_code=400, detail="At least one rule id in exclude_rules_ids does not exist in the database.")
+    curr_group_rules_ids = set(crud.get_rules_ids_by_group_id(db=db, group_id=group_id))
+    updated_group_rules_ids = curr_group_rules_ids.union(set(include_rules_ids)) - set(exclude_rules_ids)
+    updated, detail = crud.set_group_rules_ids(db=db, group_id=group_id, rules_ids=updated_group_rules_ids)
+    return {
+        'updated': updated,
         'detail': detail,
         'id': group_id
     }
