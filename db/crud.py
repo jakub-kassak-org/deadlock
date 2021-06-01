@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
+from sqlalchemy import and_
 from datetime import datetime
 from typing import List, Tuple, Optional, Set
 import logging

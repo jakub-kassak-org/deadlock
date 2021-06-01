@@ -189,7 +189,7 @@ async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(ge
 
 # Returns list of users from this group
 @app.get("/groups/{group_id}/")
-async def get_groups(group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+async def get_group(group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     users_in_group = crud.get_users_from_group(db=db, group_id=group_id)
     if not users_in_group:
         raise HTTPException(status_code=400, detail=f"Group with id {group_id} was not found.")
