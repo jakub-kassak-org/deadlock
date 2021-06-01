@@ -45,7 +45,6 @@ def delete_user(db: Session, user_id: int) -> Tuple[bool, str]:
         db.commit()
     except Exception as e:
         runtime_logger.exception(e)
-        # print(e)
         return False, str(e)
     return True, 'success'
 
@@ -60,9 +59,8 @@ def update_user(db: Session, user_id: int, data: schemas.UserBase) -> Tuple[bool
             'is_staff': data.is_staff
         })
         db.commit()
-    # TODO catch specific exception, log it
     except Exception as e:
-        print(e)
+        runtime_logger.exception(e)
         return False, str(e)
     return True, 'success'
 
@@ -81,7 +79,6 @@ def delete_group(db: Session, group_id: int) -> Tuple[bool, str]:
         db.commit()
     except Exception as e:
         runtime_logger.exception(e)
-        # print(e)
         return False, str(e)
     return True, 'success'
 
@@ -92,9 +89,8 @@ def update_group(db: Session, group_id: int, data: schemas.GroupCreate) -> Tuple
             'name': data.name,
         })
         db.commit()
-    # TODO catch specific exception, log it
     except Exception as e:
-        print(e)
+        runtime_logger.exception(e)
         return False, str(e)
     return True, 'success'
 
@@ -147,7 +143,6 @@ def delete_user_from_group(db: Session, usergroup_id: int) -> Tuple[bool, str]:
         db.commit()
     except Exception as e:
         runtime_logger.exception(e)
-        # print(e)
         return False, str(e)
     return True, 'success'
 
