@@ -233,6 +233,25 @@ def update_group(group_id: int, updated_group: GroupCreate, db: Session = Depend
     }
 
 
+@app.post("/groups/{group_id}/change_ruleset/")
+def change_ruleset_of_group(group_id: int, include_rules_ids: List[int], exclude_rules_ids: List[int],
+                            db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    include_rules_cnt = crud.get_rules_by_ids(db=db, rules_ids=include_rules_ids).count()
+    if include_rules_cnt != len(include_rules_ids):
+        raise HTTPException(status_code=400, detail="At least one rule id in include_rules_ids does not exist in the database.")
+    exclude_rules_cnt = crud.get_rules_by_ids(db=db, rules_ids=exclude_rules_ids).count()
+    if exclude_rules_cnt != len(exclude_rules_ids):
+        raise HTTPException(status_code=400, detail="At least one rule id in exclude_rules_ids does not exist in the database.")
+    curr_group_rules_ids = set(crud.get_rules_ids_by_group_id(db=db, group_id=group_id))
+    updated_group_rules_ids = curr_group_rules_ids.union(set(include_rules_ids)) - set(exclude_rules_ids)
+    updated, detail = crud.set_group_rules_ids(db=db, group_id=group_id, rules_ids=updated_group_rules_ids)
+    return {
+        'updated': updated,
+        'detail': detail,
+        'id': group_id
+    }
+
+
 @app.post("/usergroup/add/", response_model=UserGroup)
 def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_id(db=db, user_id=user_id)

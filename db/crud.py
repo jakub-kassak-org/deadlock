@@ -123,6 +123,22 @@ def get_groups_by_card(db: Session, card: str) -> Set[models.Group]:
     return set([x.group_id for x in usergroups])
 
 
+def set_group_rules_ids(db: Session, group_id: int, rules_ids: List[int]) -> Tuple[bool, str]:
+    try:
+        db.query(models.GroupRule).filter(models.GroupRule.group_id == group_id).delete()
+        for rule_id in rules_ids:
+            new_gr = models.GroupRule(
+                group_id=group_id,
+                rule_id=rule_id
+            )
+            db.add(new_gr)
+        db.commit()
+    except Exception as e:
+        runtime_logger.exception(e)
+        return False, 'Error on the database side'
+    return True, 'success'
+
+
 def get_usergroup(db: Session, user_id: int, group_id: int) -> models.UserGroup:
     return db.query(models.UserGroup).filter(and_(models.UserGroup.user_id == user_id, models.UserGroup.group_id == group_id)).first()
 
@@ -194,6 +210,16 @@ def delete_rule(db: Session, rule_id: int) -> Tuple[bool, str]:
         runtime_logger.exception(e)
         return False, str(e)
     return True, 'success'
+
+
+def get_rules_by_ids(db: Session, rules_ids: List[int]) -> List[models.Rule]:
+    return db.query(models.Rule).filter(models.Rule.id.in_(rules_ids))
+
+
+def get_rules_ids_by_group_id(db: Session, group_id: int) -> List[models.Rule]:
+    db_grouprules = db.query(models.GroupRule).filter(models.GroupRule.group_id == group_id)
+    ids = [gr.rule_id for gr in db_grouprules]
+    return ids
 
 
 def get_ap_type_by_id(db: Session, ap_type_id: int) -> models.AccessPointType:
