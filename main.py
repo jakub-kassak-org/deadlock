@@ -412,5 +412,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {
         "access_token": access_token,
         "token_type": "Bearer",
-        "expiration_time": exp_time
+        "expiration_time": exp_time,
+        "valid_for_minutes": ACCESS_TOKEN_EXPIRE_MINUTES
     }
