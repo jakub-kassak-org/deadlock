@@ -129,6 +129,8 @@ class Rule(RuleBase):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    expiration_time: datetime
+    valid_for_minutes: int
 
 
 class TokenData(BaseModel):
