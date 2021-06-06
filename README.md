@@ -492,6 +492,29 @@ Example response:
 ```
 
 
+#### `[POST] /ap/add/`
+Creates a new `AccessPoint`. It is only possible to specify name.
+It's `AccessPointType` can be specified using `/aptype/{aptype_id}/add_aps/`
+afterwards.
+
+Example request body:
+```json
+{
+  "name": "apTest"
+}
+```
+
+Success response:
+```json
+{
+  "name": "apTest",
+  "id": 6,
+  "type": null,
+  "controller": null
+}
+```
+
+
 #### `[GET] /aptype/`
 Gets a list of all access point types. Check the description of `/aptype/add/` for
 the use case of aptype.

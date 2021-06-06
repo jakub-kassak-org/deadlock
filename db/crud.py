@@ -226,6 +226,17 @@ def get_aps(db: Session, offset: int = 100, limit: int = 100) -> List[models.Acc
     return db.query(models.AccessPoint).offset(offset).limit(limit).all()
 
 
+def create_ap(db: Session, ap_base: schemas.AccessPointBase) -> Optional[schemas.AccessPoint]:
+    try:
+        new_ap = models.AccessPoint(name=ap_base.name)
+        db.add(new_ap)
+        db.commit()
+    except Exception as e:
+        runtime_logger.exception(e)
+        return None
+    return new_ap
+
+
 def get_aps_by_ids(db: Session, ids: List[int]) -> List[models.AccessPoint]:
     aps = db.query(models.AccessPoint).filter(models.AccessPoint.id.in_(ids))
     return aps

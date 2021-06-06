@@ -145,10 +145,17 @@ class Controller(BaseModel):
         orm_mode = True
 
 
-class AccessPoint(BaseModel):
+class AccessPointBase(BaseModel):
     name: str
-    type: AccessPointType
-    controller: Controller
+
+    class Config:
+        orm_mode = True
+
+
+class AccessPoint(AccessPointBase):
+    id: int
+    type: Optional[AccessPointType]
+    controller: Optional[Controller]
 
     class Config:
         orm_mode = True

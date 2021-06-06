@@ -134,8 +134,8 @@ class AccessPoint(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
-    type_id = Column(Integer, ForeignKey('access_point_type.id'), nullable=True)
-    controller_id = Column(Integer, ForeignKey('controllers.id'), nullable=True)
+    type_id = Column(Integer, ForeignKey('access_point_type.id'), nullable=True, default=None)
+    controller_id = Column(Integer, ForeignKey('controllers.id'), nullable=True, default=None)
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
 

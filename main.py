@@ -381,6 +381,11 @@ def get_access_points(offset: int = 0, limit: int = 100,
     return {'access_points': db_aps}
 
 
+@app.post("/ap/add/", response_model=AccessPoint)
+def create_access_point(ap: AccessPointBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    return crud.create_ap(db=db, ap_base=ap)
+
+
 @app.get("/aptype/")
 def get_aptypes(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     db_aptyes = crud.get_aptypes(db=db)
