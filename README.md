@@ -460,7 +460,11 @@ Response example:
     "date_to": "2022-01-01T00:00:00"
   }
 ]
-``` 
+```
+
+#### `[GET] /aptype/`
+Gets a list of all access point types. Check the description of `/aptype/add/` for
+the use case of aptype.
 
 #### `[POST] /aptype/add/`
 Adds access point type. This is good for rules that need to affect multiple doors that need
@@ -469,7 +473,7 @@ similar level of security.
 Example request:
 ```json
 {
-  "name": "ComputerRooms",
+  "name": "ComputerRooms"
 }
 ```
 

@@ -222,6 +222,10 @@ def get_rules_ids_by_group_id(db: Session, group_id: int) -> List[models.Rule]:
     return ids
 
 
+def get_aptypes(db: Session) -> List[models.AccessPointType]:
+    return db.query(models.AccessPointType).all()
+
+
 def get_ap_type_by_id(db: Session, ap_type_id: int) -> models.AccessPointType:
     return db.query(models.AccessPointType).filter(models.AccessPointType.id == ap_type_id).first()
 

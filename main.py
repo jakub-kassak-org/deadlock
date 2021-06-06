@@ -374,6 +374,12 @@ def get_timespec_ids(weekday: int, time_from: str, time_to: str, db: Session = D
     return timespec_ids
 
 
+@app.get("/aptype/")
+def get_aptypes(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    db_aptyes = crud.get_aptypes(db=db)
+    return db_aptyes
+
+
 @app.post("/aptype/add/", response_model=AccessPointType)
 def create_aptype(aptype: AccessPointTypeBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_aptype = crud.get_ap_type_by_name(db=db, ap_type_name=aptype.name)
