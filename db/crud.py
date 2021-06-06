@@ -237,6 +237,16 @@ def add_aps_to_aptype(db: Session, aptype_id: int, ap_ids: List[int]) -> bool:
     return True
 
 
+def remove_aps_from_aptype(db: Session, aptype_id: int, ap_ids: List[int]) -> bool:
+    try:
+        for ap_id in ap_ids:
+            db.query(models.AccessPoint).filter(models.AccessPoint.id == ap_id).update({'type_id': None})
+        db.commit()
+    except Exception:
+        return False
+    return True
+
+
 def get_aptypes(db: Session) -> List[models.AccessPointType]:
     return db.query(models.AccessPointType).all()
 

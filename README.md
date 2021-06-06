@@ -496,7 +496,9 @@ Success response is similar to the one in `/timespec/delete/{time_spec_id}/`.
 
 #### `[PUT] /aptype/{aptype_id}/add_aps/`
 Assigns the `AccessPointType` with `id=aptype_id` to all of the
-`AccessPoint`s specified by the body parameter `add_ids`.
+`AccessPoint`s specified by the request body.
+
+This is the inverse operation of `/aptype/{aptype_id}/remove_aps/`.
 
 Example request body:
 ```json
@@ -504,6 +506,26 @@ Example request body:
 ```
 
 Success response example (after putting to `/aptype/2/add_aps/`):
+```json
+{
+  "success": true,
+  "id": 2
+}
+```
+
+
+#### `[PUT] /aptype/{aptype_id}/remove_aps/`
+Remove the `AccessPoint`s specified by the body from the
+`AccessPointType` with `id=aptype_id`.
+
+This is the inverse operation of `/aptype/{aptype_id}/add_aps/`.
+
+Example request body:
+```json
+[1, 2]
+```
+
+Success response example (after putting to `/aptype/2/remove_aps/`):
 ```json
 {
   "success": true,

@@ -417,6 +417,22 @@ def add_aps_to_aptype(aptype_id: int, add_ids: List[int],
     }
 
 
+@app.put("/aptype/{aptype_id}/remove_aps/")
+def remove_aps_from_aptype(aptype_id: int, remove_ids: List[int],
+                      db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_aptype = crud.get_ap_type_by_id(db=db, ap_type_id=aptype_id)
+    if not db_aptype:
+        raise HTTPException(status_code=400, detail=f"Access point type with id={aptype_id} does not exist.")
+    db_aps = crud.get_aps_by_ids(db=db, ids=remove_ids)
+    if db_aps.count() != len(remove_ids):
+        raise HTTPException(status_code=400, detail="At least one of the provided access point ids does not belong to any access point.")
+    removed = crud.remove_aps_from_aptype(db=db, aptype_id=aptype_id, ap_ids=remove_ids)
+    return {
+        'success': removed,
+        'id': aptype_id
+    }
+
+
 @app.post("/token/", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
