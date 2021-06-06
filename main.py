@@ -389,7 +389,7 @@ def create_aptype(aptype: AccessPointTypeBase, db: Session = Depends(get_db), cu
 
 
 @app.delete("/aptype/delete/{ap_type_id}/")
-def delete_aptype(ap_type_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def delete_aptype(ap_type_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_aptype = crud.get_ap_type_by_id(db=db, ap_type_id=ap_type_id)
     if not db_aptype:
         raise HTTPException(status_code=400, detail=f"APType with id {ap_type_id} does not exist, nothing to delete.")
@@ -398,6 +398,22 @@ def delete_aptype(ap_type_id: int, db: Session = Depends(get_db), current_user: 
         'was_deleted': deleted,
         'detail': detail,
         'id': ap_type_id
+    }
+
+
+@app.put("/aptype/{aptype_id}/add_aps/")
+def add_aps_to_aptype(aptype_id: int, add_ids: List[int],
+                      db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_aptype = crud.get_ap_type_by_id(db=db, ap_type_id=aptype_id)
+    if not db_aptype:
+        raise HTTPException(status_code=400, detail=f"Access point type with id={aptype_id} does not exist.")
+    db_aps = crud.get_aps_by_ids(db=db, ids=add_ids)
+    if db_aps.count() != len(add_ids):
+        raise HTTPException(status_code=400, detail="At least one of the provided access point ids does not belong to any access point.")
+    added = crud.add_aps_to_aptype(db=db, aptype_id=aptype_id, ap_ids=add_ids)
+    return {
+        'success': added,
+        'id': aptype_id
     }
 
 

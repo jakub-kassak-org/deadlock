@@ -462,9 +462,11 @@ Response example:
 ]
 ```
 
+
 #### `[GET] /aptype/`
 Gets a list of all access point types. Check the description of `/aptype/add/` for
 the use case of aptype.
+
 
 #### `[POST] /aptype/add/`
 Adds access point type. This is good for rules that need to affect multiple doors that need
@@ -490,3 +492,21 @@ Example response:
 #### `[DELETE] /aptype/delete/{ap_type_id}/`
 Deletes an `AccessPointType` with `id = ap_type_id`.
 Success response is similar to the one in `/timespec/delete/{time_spec_id}/`.
+
+
+#### `[PUT] /aptype/{aptype_id}/add_aps/`
+Assigns the `AccessPointType` with `id=aptype_id` to all of the
+`AccessPoint`s specified by the body parameter `add_ids`.
+
+Example request body:
+```json
+[1, 2]
+```
+
+Success response example (after putting to `/aptype/2/add_aps/`):
+```json
+{
+  "success": true,
+  "id": 2
+}
+```

@@ -222,6 +222,21 @@ def get_rules_ids_by_group_id(db: Session, group_id: int) -> List[models.Rule]:
     return ids
 
 
+def get_aps_by_ids(db: Session, ids: List[int]) -> List[models.AccessPoint]:
+    aps = db.query(models.AccessPoint).filter(models.AccessPoint.id.in_(ids))
+    return aps
+
+
+def add_aps_to_aptype(db: Session, aptype_id: int, ap_ids: List[int]) -> bool:
+    try:
+        for ap_id in ap_ids:
+            db.query(models.AccessPoint).filter(models.AccessPoint.id == ap_id).update({'type_id': aptype_id})
+        db.commit()
+    except Exception:
+        return False
+    return True
+
+
 def get_aptypes(db: Session) -> List[models.AccessPointType]:
     return db.query(models.AccessPointType).all()
 

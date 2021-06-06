@@ -134,10 +134,12 @@ class AccessPoint(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
-    type_id = Column(Integer, ForeignKey('access_point_type.id'), nullable=False)
-    controller_id = Column(Integer, ForeignKey('controllers.id'), nullable=False)
+    type_id = Column(Integer, ForeignKey('access_point_type.id'), nullable=True)
+    controller_id = Column(Integer, ForeignKey('controllers.id'), nullable=True)
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
+
+    ap_type = relationship('AccessPointType', backref='access_points')
 
 
 class Controller(Base):
