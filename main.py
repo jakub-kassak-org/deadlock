@@ -374,6 +374,13 @@ def get_timespec_ids(weekday: int, time_from: str, time_to: str, db: Session = D
     return timespec_ids
 
 
+@app.get("/ap/")
+def get_access_points(offset: int = 0, limit: int = 100,
+                      db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_aps = crud.get_aps(db=db, offset=offset, limit=limit)
+    return {'access_points': db_aps}
+
+
 @app.get("/aptype/")
 def get_aptypes(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     db_aptyes = crud.get_aptypes(db=db)

@@ -222,6 +222,10 @@ def get_rules_ids_by_group_id(db: Session, group_id: int) -> List[models.Rule]:
     return ids
 
 
+def get_aps(db: Session, offset: int = 100, limit: int = 100) -> List[models.AccessPoint]:
+    return db.query(models.AccessPoint).offset(offset).limit(limit).all()
+
+
 def get_aps_by_ids(db: Session, ids: List[int]) -> List[models.AccessPoint]:
     aps = db.query(models.AccessPoint).filter(models.AccessPoint.id.in_(ids))
     return aps

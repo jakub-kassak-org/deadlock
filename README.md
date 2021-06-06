@@ -463,6 +463,35 @@ Response example:
 ```
 
 
+#### `[GET] /ap/`
+Gets a list of `AccessPoint`s. It is possible
+to specify an `offset` and a `limit` as query parameters.
+
+Example response:
+```json
+{
+  "access_points": [
+    {
+      "name": "H6 zadne dvere",
+      "controller_id": 1,
+      "updated": "2021-06-06T11:33:11.667617",
+      "type_id": null,
+      "id": 1,
+      "created": "2021-06-06T11:19:23.370632"
+    },
+    {
+      "name": "H6 bocne dvere",
+      "controller_id": 1,
+      "updated": "2021-06-06T11:33:34.586907",
+      "type_id": 2,
+      "id": 2,
+      "created": "2021-06-06T11:19:23.370632"
+    }
+  ]
+}
+```
+
+
 #### `[GET] /aptype/`
 Gets a list of all access point types. Check the description of `/aptype/add/` for
 the use case of aptype.
