@@ -386,6 +386,19 @@ def create_access_point(ap: AccessPointBase, db: Session = Depends(get_db), curr
     return crud.create_ap(db=db, ap_base=ap)
 
 
+@app.delete("/ap/delete/{ap_id}/")
+def delete_access_point(ap_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_ap = crud.get_aps_by_ids(db=db, ids=[ap_id])
+    if db_ap.count() == 0:
+        raise HTTPException(status_code=400, detail=f"Access point with id={ap_id} does not exist int the database.")
+    deleted, detail = crud.delete_ap(db=db, ap_id=ap_id)
+    return {
+        'was_deleted': deleted,
+        'detail': detail,
+        'id': ap_id
+    }
+
+
 @app.get("/aptype/")
 def get_aptypes(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     db_aptyes = crud.get_aptypes(db=db)

@@ -515,6 +515,19 @@ Success response:
 ```
 
 
+#### `[DELETE] /ap/delete/{ap_id}/`
+Deletes an `AccessPoint` with `id=ap_id`.
+
+Success response example:
+```json
+{
+  "was_deleted": true,
+  "detail": "success",
+  "id": 6
+}
+```
+
+
 #### `[GET] /aptype/`
 Gets a list of all access point types. Check the description of `/aptype/add/` for
 the use case of aptype.

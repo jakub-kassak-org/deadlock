@@ -237,6 +237,16 @@ def create_ap(db: Session, ap_base: schemas.AccessPointBase) -> Optional[schemas
     return new_ap
 
 
+def delete_ap(db: Session, ap_id: int) -> Tuple[bool, str]:
+    try:
+        db.query(models.AccessPoint).filter(models.AccessPoint.id == ap_id).delete()
+        db.commit()
+    except Exception as e:
+        runtime_logger.exception(e)
+        return False, str(e)
+    return True, 'success'
+
+
 def get_aps_by_ids(db: Session, ids: List[int]) -> List[models.AccessPoint]:
     aps = db.query(models.AccessPoint).filter(models.AccessPoint.id.in_(ids))
     return aps
