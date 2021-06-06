@@ -528,6 +528,27 @@ Success response example:
 ```
 
 
+#### `[PUT] /ap/update/{ap_id}/`
+Updates an `AccessPoint` with `id=ap_id`.
+Only update of `name` parameter possible.
+
+Example request body:
+```json
+{
+  "name": "new AP name"
+}
+```
+
+Success response example:
+```json
+{
+  "was_updated": true,
+  "detail": "success",
+  "id": 3
+}
+```
+
+
 #### `[GET] /aptype/`
 Gets a list of all access point types. Check the description of `/aptype/add/` for
 the use case of aptype.
