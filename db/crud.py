@@ -233,6 +233,11 @@ def get_aps(db: Session, offset: int = 100, limit: int = 100) -> List[models.Acc
     return db.query(models.AccessPoint).offset(offset).limit(limit).all()
 
 
+def get_aps_by_ap_type(db: Session, aptype_id: int) -> List[models.AccessPoint]:
+    db_aps = db.query(models.AccessPoint).filter(models.AccessPoint.type_id == aptype_id).all()
+    return db_aps
+
+
 def create_ap(db: Session, ap_base: schemas.AccessPointBase) -> Optional[schemas.AccessPoint]:
     try:
         new_ap = models.AccessPoint(name=ap_base.name)

@@ -446,6 +446,12 @@ def delete_aptype(ap_type_id: int, db: Session = Depends(get_db), current_user: 
     }
 
 
+@app.get("/aptype/{aptype_id}/get_aps/", response_model=List[AccessPointOut])
+def get_aps_by_aptype(aptype_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_aps = crud.get_aps_by_ap_type(db=db, aptype_id=aptype_id)
+    return db_aps
+
+
 @app.put("/aptype/{aptype_id}/add_aps/")
 def add_aps_to_aptype(aptype_id: int, add_ids: List[int],
                       db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):

@@ -171,6 +171,13 @@ class AccessPointBase(BaseModel):
         orm_mode = True
 
 
+class AccessPointOut(AccessPointBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
 class AccessPoint(AccessPointBase):
     id: int
     type: Optional[AccessPointType]

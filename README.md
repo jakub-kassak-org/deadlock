@@ -604,6 +604,25 @@ Success response example (after putting to `/aptype/2/add_aps/`):
 ```
 
 
+#### `[GET] /aptype/{aptype_id}/get_aps/`
+Gets a list of `AccessPoint`s that have an `AccessPointType` with `id=aptype_id`.
+
+Success response example:
+```json
+[
+  {
+    "name": "H6 zadne dvere",
+    "id": 1
+  },
+  {
+    "name": "H6 bocne dvere",
+    "id": 2
+  }
+]
+```
+
+
+
 #### `[PUT] /aptype/{aptype_id}/remove_aps/`
 Remove the `AccessPoint`s specified by the body from the
 `AccessPointType` with `id=aptype_id`.
