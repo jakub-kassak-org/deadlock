@@ -117,10 +117,17 @@ def get_group_by_id(db: Session, group_id: int) -> models.Group:
     return db.query(models.Group).filter(models.Group.id == group_id).first()
 
 
-def get_groups_by_card(db: Session, card: str) -> Set[models.Group]:
+def get_groups_ids_by_card(db: Session, card: str) -> Set[int]:
     user = db.query(models.User).filter(models.User.card == card).first()
     usergroups = db.query(models.UserGroup).filter(models.UserGroup.user_id == user.id)
     return set([x.group_id for x in usergroups])
+
+
+def get_groups_by_user_id(db: Session, user_id: int) -> List[models.Group]:
+    usergroups = db.query(models.UserGroup).filter(models.UserGroup.user_id == user_id)
+    group_ids = set([x.group_id for x in usergroups])
+    groups = db.query(models.Group).filter(models.Group.id.in_(group_ids)).all()
+    return groups
 
 
 def set_group_rules_ids(db: Session, group_id: int, rules_ids: List[int]) -> Tuple[bool, str]:

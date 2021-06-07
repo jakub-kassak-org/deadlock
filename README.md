@@ -185,6 +185,21 @@ Gets current user:
 }
 ```
 
+
+#### `[GET] /users/{user_id}/get_groups/`
+Get the list of `Group`s that the `User` with `id=user_id` is a member of.
+
+Success response example:
+```json
+[
+  {
+    "id": 1,
+    "name": "Group1"
+  }
+]
+```
+
+
 #### `[GET] /groups/`
 Returns list of all groups like this:
 ```json

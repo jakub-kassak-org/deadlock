@@ -54,9 +54,20 @@ class UserInDB(User):
     hashed_password: str
 
 
-class Group(BaseModel):
+class GroupBase(BaseModel):
     id: int
     name: str
+
+    def __init__(self, _id: int, _name: str):
+        super().__init__()
+        self.id = _id
+        self.name = _name
+
+    class Config:
+        orm_mode = True
+
+
+class Group(GroupBase):
     rules: List[GroupRule] = []
 
     class Config:

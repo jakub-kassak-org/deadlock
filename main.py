@@ -137,6 +137,12 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
 
+@app.get("/users/{user_id}/get_groups/", response_model=List[GroupBase])
+def get_groups_of_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    groups = crud.get_groups_by_user_id(db=db, user_id=user_id)
+    return groups
+
+
 @app.post("/users/", response_model=User)
 def create_user(user: UserBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_username(db=db, username=user.username)
@@ -317,7 +323,7 @@ def delete_rule(rule_id: int, db: Session = Depends(get_db), current_user: User 
 # Allows or denies
 @app.post("/entry/eval/")
 def evaluate_entry(card: str, access_point_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    group_ids = crud.get_groups_by_card(db=db, card=card)
+    group_ids = crud.get_groups_ids_by_card(db=db, card=card)
     if len(group_ids) == 0:
         access_logger.info(f'({card}, {access_point_id}) - {log_messages.DENY}: {log_messages.MSG_USR_NOT_IN_ANY_GROUP}')
         return {'allow': False}  # This user is not in any group, therefore there are no rules for him -> Deny
