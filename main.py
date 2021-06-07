@@ -126,13 +126,13 @@ async def root():
     return {'message': 'response'}
 
 
-@app.get('/users/')
+@app.get('/users/', response_model=List[UserOut])
 async def get_users(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     users = crud.get_users(db, offset=offset, limit=limit)
-    return {'users': users}
+    return users
 
 
-@app.get("/users/me/")
+@app.get("/users/me/", response_model=UserOut)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 

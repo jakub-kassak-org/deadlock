@@ -39,6 +39,14 @@ class UserBase(BaseModel):
         orm_mode = True
 
 
+class UserOut(UserBase):
+    id: int
+    disabled: bool
+
+    class Config:
+        orm_mode = True
+
+
 class User(UserBase):
     id: str
     disabled: bool

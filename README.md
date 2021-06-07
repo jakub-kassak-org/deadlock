@@ -76,34 +76,26 @@ and debugging purposes.
 #### `[GET] /users/`
 Returns list of users in json format:
 ```json
-{
-  "users": [
-    {
-      "username": "stlpik",
-      "first_name": "Meno",
-      "is_staff": true,
-      "disabled": false,
-      "updated": "2020-12-18T18:27:34.783243",
-      "id": 1,
-      "card": "1234567891011",
-      "last_name": "Priezvisko",
-      "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-      "created": "2020-12-18T18:27:34.783243"
-    },
-    {
-      "username": "stud",
-      "first_name": "Meno",
-      "is_staff": false,
-      "disabled": false,
-      "updated": "2020-12-18T18:27:34.783243",
-      "id": 2,
-      "card": "1234567891011",
-      "last_name": "Priezvisko",
-      "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-      "created": "2020-12-18T18:27:34.783243"
-    }
-  ]
-}
+[
+  {
+    "card": "1234567891011",
+    "username": "stlpik",
+    "first_name": "Meno",
+    "last_name": "Priezvisko",
+    "is_staff": true,
+    "id": 1,
+    "disabled": false
+  },
+  {
+    "card": "1234567891012",
+    "username": "stud",
+    "first_name": "Meno",
+    "last_name": "Priezvisko",
+    "is_staff": false,
+    "id": 2,
+    "disabled": false
+  }
+]
 ```
 
 #### `[POST] /users/`
@@ -172,16 +164,13 @@ Success response:
 Gets current user:
 ```json
 {
-  "first_name": "Meno",
-  "username": "stlpik",
-  "is_staff": true,
-  "disabled": false,
-  "updated": "2021-03-12T19:30:41.255382",
-  "id": 1,
   "card": "1234567891011",
+  "username": "stlpik",
+  "first_name": "Meno",
   "last_name": "Priezvisko",
-  "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-  "created": "2021-03-12T19:30:41.255382"
+  "is_staff": true,
+  "id": 1,
+  "disabled": false
 }
 ```
 
