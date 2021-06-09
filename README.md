@@ -496,6 +496,22 @@ Example response:
 ```
 
 
+#### `[GET] /ap/{ap_id}/`
+Retreives information about an `AccessPoint` with `id=ap_id` including `Controller`
+info (`db_version`, `fw_version`, `id`).
+
+Success response example:
+```json
+{
+  "id": 1,
+  "name": "H6 zadne dvere",
+  "controller_fw_version": 1,
+  "controller_db_version": 1,
+  "controller_id": 1
+}
+```
+
+
 #### `[POST] /ap/add/`
 Creates a new `AccessPoint`. It is only possible to specify name.
 It's `AccessPointType` can be specified using `/aptype/{aptype_id}/add_aps/`

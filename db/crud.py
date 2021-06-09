@@ -246,12 +246,14 @@ def get_ap_by_id(db: Session, ap_id: int) -> dict:
         'id': ap_id,
         'name': db_ap.name,
         'controller_fw_version': None,
-        'controller_db_version': None
+        'controller_db_version': None,
+        'controller_id': None
     }
     if db_ap.controller_id:
         db_controller: models.Controller = db.query(models.Controller).filter(models.Controller.id == db_ap.controller_id).first()
         res['controller_fw_version'] = db_controller.fw_version
         res['controller_db_version'] = db_controller.db_version
+        res['controller_id'] = db_controller.id
     return res
 
 
