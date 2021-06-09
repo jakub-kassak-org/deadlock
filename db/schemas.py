@@ -145,6 +145,15 @@ class Rule(RuleBase):
         orm_mode = True
 
 
+class RuleNoGroups(RuleBase):
+    id: int
+    created: datetime
+    updated: datetime
+
+    class Config:
+        orm_mode = True
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str

@@ -622,7 +622,6 @@ Success response example:
 ```
 
 
-
 #### `[PUT] /aptype/{aptype_id}/remove_aps/`
 Remove the `AccessPoint`s specified by the body from the
 `AccessPointType` with `id=aptype_id`.
@@ -640,4 +639,24 @@ Success response example (after putting to `/aptype/2/remove_aps/`):
   "success": true,
   "id": 2
 }
+```
+
+
+#### `[GET] /aptype/{aptype_id}/get_rules/`
+Get the list of rules that are associated with `AccessPointType` with `id=aptype_id`.
+
+Success response example:
+```json
+[
+  {
+    "name": "RuleName",
+    "allow": true,
+    "time_spec_id": 1,
+    "ap_type_id": 1,
+    "priority": 5,
+    "id": 1,
+    "created": "2021-06-06T12:11:01.268714",
+    "updated": "2021-06-06T12:11:01.268714"
+  }
+]
 ```

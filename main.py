@@ -332,7 +332,7 @@ def evaluate_entry(card: str, access_point_id: int, db: Session = Depends(get_db
         # No ap_type for this ap
         access_logger.error(f'({card}, {access_point_id}) - {log_messages.DENY}: {log_messages.MSG_NO_AP_TYPE_FOR_THIS_AP}')
         return {'allow': False}  # Deny
-    rules = crud.get_rules_by_groups_and_ap_type(db=db, group_ids=group_ids, ap_type_id=ap_type_id)
+    rules = crud.get_rules_by_groups_and_ap_type_id(db=db, group_ids=group_ids, ap_type_id=ap_type_id)
     # Highest priority first, if any rule of highest priority is allow, then allow. TODO decide whether this is good
     priority_and_result = sorted([(x.priority, x.allow) for x in rules], reverse=True)
     if len(priority_and_result) == 0:
@@ -482,6 +482,15 @@ def remove_aps_from_aptype(aptype_id: int, remove_ids: List[int],
         'success': removed,
         'id': aptype_id
     }
+
+
+@app.get("/aptype/{aptype_id}/get_rules/", response_model=List[RuleNoGroups])
+def get_rules_by_aptype(aptype_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_aptype = crud.get_ap_type_by_id(db=db, ap_type_id=aptype_id)
+    if not db_aptype:
+        raise HTTPException(status_code=400, detail=f"Access point type with id={aptype_id} does not exist.")
+    db_rules = crud.get_rules_by_ap_type_id(db=db, ap_type_id=aptype_id)
+    return db_rules
 
 
 @app.post("/token/", response_model=Token)

@@ -178,7 +178,7 @@ def get_rule_by_id(db: Session, rule_id: int) -> models.Rule:
     return db.query(models.Rule).filter(models.Rule.id == rule_id).first()
 
 
-def get_rules_by_groups_and_ap_type(db: Session, group_ids: set, ap_type_id: int) -> List[models.Rule]:
+def get_rules_by_groups_and_ap_type_id(db: Session, group_ids: set, ap_type_id: int) -> List[models.Rule]:
     grouprules = db.query(models.GroupRule).filter(models.GroupRule.group_id.in_(group_ids))
     rule_ids = [x.rule_id for x in grouprules]
     dt = datetime.now()
@@ -193,6 +193,11 @@ def get_rules_by_groups_and_ap_type(db: Session, group_ids: set, ap_type_id: int
         .filter(models.TimeSpec.date_to >= dt)\
         .filter(models.TimeSpec.time_from <= dt.time())\
         .filter(models.TimeSpec.time_to >= dt.time())
+    return rules
+
+
+def get_rules_by_ap_type_id(db: Session, ap_type_id: int) -> List[models.Rule]:
+    rules = db.query(models.Rule).filter(models.Rule.ap_type_id == ap_type_id).all()
     return rules
 
 
