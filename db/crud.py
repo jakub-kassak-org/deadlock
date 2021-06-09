@@ -240,6 +240,21 @@ def get_aps(db: Session, offset: int = 100, limit: int = 100) -> List[models.Acc
     return db.query(models.AccessPoint).offset(offset).limit(limit).all()
 
 
+def get_ap_by_id(db: Session, ap_id: int) -> dict:
+    db_ap: models.AccessPoint = db.query(models.AccessPoint).filter(models.AccessPoint.id == ap_id).first()
+    res = {
+        'id': ap_id,
+        'name': db_ap.name,
+        'controller_fw_version': None,
+        'controller_db_version': None
+    }
+    if db_ap.controller_id:
+        db_controller: models.Controller = db.query(models.Controller).filter(models.Controller.id == db_ap.controller_id).first()
+        res['controller_fw_version'] = db_controller.fw_version
+        res['controller_db_version'] = db_controller.db_version
+    return res
+
+
 def get_aps_by_ap_type(db: Session, aptype_id: int) -> List[models.AccessPoint]:
     db_aps = db.query(models.AccessPoint).filter(models.AccessPoint.type_id == aptype_id).all()
     return db_aps

@@ -385,6 +385,11 @@ def get_access_points(offset: int = 0, limit: int = 100,
     return {'access_points': db_aps}
 
 
+@app.get("/ap/{ap_id}/")
+def get_access_point_info(ap_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    return crud.get_ap_by_id(db=db, ap_id=ap_id)
+
+
 @app.post("/ap/add/", response_model=AccessPoint)
 def create_access_point(ap: AccessPointBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     return crud.create_ap(db=db, ap_base=ap)
@@ -511,3 +516,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         "expiration_time": exp_time,
         "valid_for_minutes": ACCESS_TOKEN_EXPIRE_MINUTES
     }
+
+
+# ------------- FOR CONTROLLERS -----------------
