@@ -75,6 +75,8 @@ def create_group(db: Session, group: schemas.GroupCreate) -> models.Group:
 
 def delete_group(db: Session, group_id: int) -> Tuple[bool, str]:
     try:
+        db.query(models.UserGroup).filter(models.UserGroup.group_id == group_id).delete()
+        db.query(models.GroupRule).filter(models.GroupRule.group_id == group_id).delete()
         db.query(models.Group).filter(models.Group.id == group_id).delete()
         db.commit()
     except Exception as e:
