@@ -333,6 +333,9 @@ def create_ap_type(db: Session, ap_type: schemas.AccessPointTypeBase) -> models.
 
 def delete_ap_type(db: Session, ap_type_id: int) -> Tuple[bool, str]:
     try:
+        db.query(models.AccessPoint).filter(models.AccessPoint.type_id == ap_type_id).update({
+            'type_id': None
+        })
         db.query(models.AccessPointType).filter(models.AccessPointType.id == ap_type_id).delete()
         db.commit()
     except Exception as e:
