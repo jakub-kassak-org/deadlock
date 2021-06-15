@@ -189,6 +189,27 @@ Success response example:
 ```
 
 
+#### `[POST] /users/update_db/`
+Given a list of student cards, inserts them into the database. No additional info
+is inserted. Cards that already were in the database are ignored.
+
+This is used by an updating script and should not be needed for manual use.
+
+Request body example:
+```json
+{
+  "cards": ["11111111111111111", "22222222222222222"]
+}
+```
+
+Response example:
+```json
+{
+  "was_updated": true
+}
+```
+
+
 #### `[GET] /groups/`
 Returns list of all groups like this:
 ```json

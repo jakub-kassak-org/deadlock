@@ -6,7 +6,7 @@ from db import models, crud
 from db.database import SessionLocal, engine
 from db.schemas import *
 
-from typing import Optional
+from typing import Optional, Dict, List
 
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -181,10 +181,8 @@ def update_user(user_id: int, updated_user: UserBase, db: Session = Depends(get_
 
 
 @app.post("/users/update_db/")
-def update_users_database(cards: List[str], db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    # root_logger.info(f'DATA: {data}')
-    # cards: List[str] = data['cards']
-    updated = crud.add_nonsuperuser_cards(db=db, cards=cards)
+def update_users_database(data: Dict[str, List[str]], db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    updated = crud.add_nonsuperuser_cards(db=db, cards=data['cards'])
     return {
         'was_updated': updated
     }

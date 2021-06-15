@@ -15,7 +15,7 @@ def retreive_students() -> List[str]:
 
 
 def update_db(card_numbers: List[str]):
-    data = urllib.parse.urlencode({'cards': retreive_students()})
+    data = {'cards': urllib.parse.urlencode(retreive_students())}
     req = urllib.request.Request(USERS_UPDATE_URL, data=data)
     res = urllib.request.urlopen(req)
     return res
