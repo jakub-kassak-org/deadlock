@@ -180,6 +180,16 @@ def update_user(user_id: int, updated_user: UserBase, db: Session = Depends(get_
     }
 
 
+@app.post("/users/update_db/")
+def update_users_database(cards: List[str], db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    # root_logger.info(f'DATA: {data}')
+    # cards: List[str] = data['cards']
+    updated = crud.add_nonsuperuser_cards(db=db, cards=cards)
+    return {
+        'was_updated': updated
+    }
+
+
 @app.get("/groups/by_ap_type_and_time_spec/")
 def get_groups_by_ap_type_and_time_spec(ap_type_id: int, time_spec_id: int, db: Session = Depends(get_db),
                                               current_user: User = Depends(get_current_active_user)):

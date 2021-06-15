@@ -65,6 +65,23 @@ def update_user(db: Session, user_id: int, data: schemas.UserBase) -> Tuple[bool
     return True, 'success'
 
 
+# crud.add_nonsuperuser_cards(cards)
+def add_nonsuperuser_cards(db: Session, cards: List[str]) -> bool:
+    old_users = db.query(models.User).filter(models.User.card.in_(cards)).all()
+    old_cards = set([u.card for u in old_users])
+    new_cards = set(cards) - old_cards
+    for card in new_cards:
+        user = models.User(card=card)
+        db.add(user)
+    try:
+        if new_cards:
+            db.commit()
+    except Exception as e:
+        runtime_logger.exception(e)
+        return False
+    return True
+
+
 def create_group(db: Session, group: schemas.GroupCreate) -> models.Group:
     db_group = models.Group(name=group.name)
     db.add(db_group)

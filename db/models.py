@@ -12,10 +12,10 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    username = Column(String, nullable=False, unique=True)
+    username = Column(String, nullable=True, unique=True)
     card = Column(String, nullable=False, unique=True)
-    first_name = Column(String)
-    last_name = Column(String)
+    first_name = Column(String, nullable=True)
+    last_name = Column(String, nullable=True)
     is_staff = Column(Boolean, nullable=False, default=False)
     hashed_password = Column(String, nullable=True)
     disabled = Column(Boolean, default=False)
