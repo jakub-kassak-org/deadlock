@@ -20,7 +20,7 @@ class User(Base):
     hashed_password = Column(String, nullable=True)
     disabled = Column(Boolean, default=False)
     created = Column(DateTime, server_default=utcnow())
-    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())  # TODO Check whether onupdates is correct
+    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())  # TODO Check whether updated is correct
 
     groups = relationship('UserGroup')
 
@@ -50,17 +50,6 @@ class Rule(Base):
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
 
     groups = relationship('GroupRule')
-
-    # @hybrid_method
-    def matches_time(self, dt: datetime):
-        session = Session.object_session(self)
-        # ts = session.query(TimeSpec).filter(TimeSpec.id == self.time_spec_id).first()
-        # return ts.matches_time(dt)
-
-        print('SOM TU')
-        print(session)
-        print('IDEM PREC')
-        return True
 
 
 class UserGroup(Base):
