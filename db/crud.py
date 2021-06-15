@@ -121,6 +121,8 @@ def get_group_by_id(db: Session, group_id: int) -> models.Group:
 
 def get_groups_ids_by_card(db: Session, card: str) -> Set[int]:
     user = db.query(models.User).filter(models.User.card == card).first()
+    if not user:
+        return set()
     usergroups = db.query(models.UserGroup).filter(models.UserGroup.user_id == user.id)
     return set([x.group_id for x in usergroups])
 
