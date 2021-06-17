@@ -180,6 +180,45 @@ def update_user(user_id: int, updated_user: UserBase, db: Session = Depends(get_
     }
 
 
+@app.post("/users/{user_id}/assign_ap_type/")
+def assign_ap_type_to_user(user_id: int, ap_type_id: int, timespec: TimeSpecBaseAnonymous,
+                           db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    db_user = crud.get_user_by_id(db=db, user_id=user_id)
+    if not db_user:
+        raise HTTPException(status_code=400, detail=f"User with id={user_id} does not exist.")
+    db_ap_type = crud.get_ap_type_by_id(db=db, ap_type_id=ap_type_id)
+    if not db_ap_type:
+        raise HTTPException(status_code=400, detail=f"Access point type with id={ap_type_id} does not exist.")
+    success = True
+    try:
+        timespec_named = TimeSpecBase(
+            weekday_mask=timespec.weekday_mask,
+            date_from=timespec.date_from,
+            date_to=timespec.date_to,
+            time_from=timespec.time_from,
+            time_to=timespec.time_to,
+            title=f'{timespec.weekday_mask}-{timespec.time_from}-{timespec.time_to}-{timespec.date_from}-'
+            f'{timespec.date_to}-{hash(str(datetime.now()))}'
+        )
+        db_time_spec = crud.create_time_spec(db=db, time_spec=timespec_named)
+        gc = GroupCreate(name=f'{user_id}-{ap_type_id}-{db_time_spec.id}')
+        new_group = crud.create_group(db=db, group=gc)
+        crud.add_user_to_group(db=db, user_id=user_id, group_id=new_group.id)
+        rb = RuleBase(
+            name=f'{ap_type_id}-{db_time_spec.id}-{new_group.id}',
+            allow=True,
+            time_spec_id=db_time_spec.id,
+            ap_type_id=ap_type_id,
+            priority=1
+        )
+        new_rule = crud.create_rule(db=db, rule=rb)
+        crud.set_group_rules_ids(db=db, group_id=new_group.id, rules_ids=[new_rule.id])
+    except Exception as e:
+        runtime_logger.exception(e)
+        success = False
+    return {'success': success}
+
+
 @app.post("/users/update_db/")
 def update_users_database(data: Dict[str, List[str]], db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     updated = crud.add_nonsuperuser_cards(db=db, cards=data['cards'])

@@ -85,17 +85,26 @@ class Group(GroupBase):
 class GroupCreate(BaseModel):
     name: str
 
+    def set_name(self, _name: str):
+        self.name = _name
+
     class Config:
         orm_mode = True
 
 
-class TimeSpecBase(BaseModel):
-    title: str
+class TimeSpecBaseAnonymous(BaseModel):
     weekday_mask: int
     time_from: time
     time_to: time
     date_from: datetime
     date_to: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class TimeSpecBase(TimeSpecBaseAnonymous):
+    title: str
 
     class Config:
         orm_mode = True
