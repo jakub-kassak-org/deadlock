@@ -210,6 +210,30 @@ Response example:
 ```
 
 
+#### `[POST] /users/{user_id}/assign_ap_type/`
+Given a `user_id`, `ap_type_id` and time specification,
+let's the given `User` enter the room guarded by the given
+`AccessPointType` during the times specified by the given `TimeSpec`.
+
+Example request body to `/users/1/assign_ap_type/?ap_type_id=3`:
+```json
+{
+  "weekday_mask": 7,
+  "time_from": "10:00",
+  "time_to": "12:30",
+  "date_from": "2021-06-19T11:01:49.526Z",
+  "date_to": "2021-06-19T11:01:49.526Z"
+}
+```
+
+Success response example:
+```json
+{
+  "success": true
+}
+```
+
+
 #### `[GET] /groups/`
 Returns list of all groups like this:
 ```json
