@@ -1,0 +1,74 @@
+body {
+    font-size: 110%;
+}
+
+header {
+    background-repeat: no-repeat;
+    background-position: right top;
+    background-color: #000000;
+    margin-top: 2.5em;
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #FAFAFF;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-variant: small-caps;
+    margin: 0;
+    display: inline-block;
+}
+
+nav a:hover {
+    color: #FFFFFF !important;
+    background-color: #000000 !important;
+}
+
+.section {
+    background-color: #FFFFCC;
+}
+
+.section a {
+    color: #000000;
+    font-weight: bold;
+}
+
+footer {
+    color: #004700;
+    background-color: #999999;
+    text-align: center;
+}
+
+figure {
+    background-color: #FFFFFF;
+    text-align: center;
+    margin: 0.5em;
+    padding: 5px;
+    text-align: center;
+    float: left;
+    width: auto;
+    border: 1px solid rgb(143, 39, 50);
+}
+
+figcaption {
+    font-style: italic;
+    font-weight: bold;
+}
+
+figure em {
+    font-weight: bold;
+}
+
+aside p {
+    background-color: #FAE8D6;
+    border: 3px dotted #000000;
+    padding: 0.5em;
+}
+
+aside em {
+    color: #000000;
+    font-weight: bold;
+}
+
+section ol li li {
+    font-style: italic;
+}
