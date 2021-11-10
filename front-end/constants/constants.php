@@ -1,4 +1,4 @@
 <?php
 global $serverAddress;
-$serverAddress="http://127.0.0.1:2345";
+$serverAddress="http://".getenv("SERVER_IP")."/";
 ?>
