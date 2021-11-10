@@ -1,0 +1,7 @@
+.vscode
+back-end/__pychache__
+back-end/venv
+back-end/*/__init__.py
+db/__pychache__
+db/__init.py
+/.idea
