@@ -1,0 +1,47 @@
+version: '3.9'
+services:
+  web:
+    container_name: web
+    image: jkassak/web
+    build: 
+      context: front-end/
+      dockerfile: apache-web-server.dockerfile
+    environment:
+      - SERVER_IP=server
+    ports:
+      - "8080:80"
+    networks:
+      - deadlock-network
+  server:
+    container_name: server
+    image: jkassak/server
+    build: 
+      context: back-end/
+      dockerfile: python-server.dockerfile
+    environment:
+      - DB_URL=postgres://test:test@database:5432/test
+      - STAGE=dev
+      - USERS_RETRIEVE_FILENAME=/usr/src/app/data/studenti.xml
+    depends_on:
+      - database
+    networks:
+      - deadlock-network
+    ports:
+      - "8081:80"
+#    comment out for prod
+    volumes:
+      - ./back-end:/usr/src/app
+  database:
+    container_name: database
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_USER=test
+    networks:
+      - deadlock-network
+    ports:
+      - "5433:5432"
+
+networks:
+  deadlock-network:
+    driver: bridge
