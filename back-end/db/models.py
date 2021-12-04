@@ -124,54 +124,9 @@ class AccessPoint(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     type_id = Column(Integer, ForeignKey('access_point_type.id'), nullable=True, default=None)
-    controller_id = Column(Integer, ForeignKey('controllers.id'), nullable=True, default=None)
+    ip_addr = Column(String, unique=True)
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
 
     ap_type = relationship('AccessPointType', backref='access_points')
 
-
-class Controller(Base):
-    __tablename__ = 'controllers'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    last_seen = Column(DateTime, onupdate=utcnow())
-    db_version = Column(Integer)
-    fw_version = Column(Integer)
-    created = Column(DateTime, server_default=utcnow())
-    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
-
-
-# TODO toto asi nechceme, asi budeme logovat skor do suborov ako do databazy
-class AccessLog(Base):
-    __tablename__ = 'access_log'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    controller_id = Column(Integer, ForeignKey('controllers.id'), nullable=False)
-    card = Column(String)
-    without_card = Column(Boolean, server_default='False')
-    allowed = Column(Boolean, nullable=False)
-    timestamp = Column(DateTime, server_default=utcnow())
-    created = Column(DateTime, server_default=utcnow())
-    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
-
-
-class ErrorLog(Base):
-    __tablename__ = 'error_log'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    controller_id = Column(Integer, ForeignKey('controllers.id'), nullable=False)
-    error_code = Column(Integer, nullable=False)
-    timestamp = Column(DateTime, server_default=utcnow())
-    created = Column(DateTime, server_default=utcnow())
-    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
-
-
-class ErrorDesc(Base):
-    __tablename__ = 'error_description'
-
-    code = Column(Integer, primary_key=True)
-    ticker = Column(String, unique=True)
-    description = Column(String)
-    created = Column(DateTime, server_default=utcnow())
-    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())

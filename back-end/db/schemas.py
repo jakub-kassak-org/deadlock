@@ -174,14 +174,6 @@ class TokenData(BaseModel):
     username: Optional[str] = None
 
 
-class Controller(BaseModel):
-    db_version: int
-    fw_version: int
-
-    class Config:
-        orm_mode = True
-
-
 class AccessPointBase(BaseModel):
     name: str
 
@@ -199,16 +191,6 @@ class AccessPointOut(AccessPointBase):
 class AccessPoint(AccessPointBase):
     id: int
     type: Optional[AccessPointType]
-    controller: Optional[Controller]
-
-    class Config:
-        orm_mode = True
-
-
-class ErrorDescription(BaseModel):
-    code: int
-    ticker: str
-    description: str
 
     class Config:
         orm_mode = True

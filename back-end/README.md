@@ -521,20 +521,20 @@ Example response:
 {
   "access_points": [
     {
-      "name": "H6 zadne dvere",
-      "controller_id": 1,
-      "updated": "2021-06-06T11:33:11.667617",
-      "type_id": null,
+      "type_id": 2,
+      "ip_addr": "0.0.0.1",
       "id": 1,
-      "created": "2021-06-06T11:19:23.370632"
+      "updated": "2022-01-15T14:18:25.166169",
+      "name": "H6 zadne dvere",
+      "created": "2022-01-15T14:18:25.166169"
     },
     {
-      "name": "H6 bocne dvere",
-      "controller_id": 1,
-      "updated": "2021-06-06T11:33:34.586907",
       "type_id": 2,
+      "ip_addr": "0.0.0.2",
       "id": 2,
-      "created": "2021-06-06T11:19:23.370632"
+      "updated": "2022-01-15T14:18:25.166169",
+      "name": "H6 bocne dvere",
+      "created": "2022-01-15T14:18:25.166169"
     }
   ]
 }
@@ -542,17 +542,13 @@ Example response:
 
 
 #### `[GET] /ap/{ap_id}/`
-Retreives information about an `AccessPoint` with `id=ap_id` including `Controller`
-info (`db_version`, `fw_version`, `id`).
+Retreives information about an `AccessPoint` with `id=ap_id`
 
 Success response example:
 ```json
 {
   "id": 1,
-  "name": "H6 zadne dvere",
-  "controller_fw_version": 1,
-  "controller_db_version": 1,
-  "controller_id": 1
+  "name": "H6 zadne dvere"
 }
 ```
 
@@ -574,8 +570,7 @@ Success response:
 {
   "name": "apTest",
   "id": 6,
-  "type": null,
-  "controller": null
+  "type": null
 }
 ```
 
