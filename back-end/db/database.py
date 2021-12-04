@@ -4,10 +4,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import expression
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.types import DateTime
+import os
 
 
-# SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://test:test@localhost/test"  # TODO hide
+SQLALCHEMY_DATABASE_URL = os.environ["DB_URL"]
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
