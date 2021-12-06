@@ -34,21 +34,23 @@ uvicorn main:app --reload
 ```
 
 ### How to log
-Logging configuration is in `logging.conf`.
-There are 3 loggers in `main.py`.
+Logging configuration is in `logging_conf.yml`.
+There are 2 loggers in `main.py`.
 
 First of them is `access_logger`, which is used
-for access logs into a file (`access.log`).
+for access logs.
 
-Access logging happens in `/entry/eval/` endpoint. Log file shows a pair
+Access logging happens in `/entry/eval/` endpoint. Logs show a pair
 `(card_number, access_point_id)` in every log.
 
-Second of them, `root_logger` can be used to print to `stdout`. One can use
-`root_logger.info('message to print to stdout')` for this.
-
-Third of them is `runtime_logger`, which is used
+Second of them is `runtime_logger`, which is used
 for runtime logs, such as runtime exceptions. It
 logs into a file (`runtime.log`).
+
+All logs are saved in database. Even logs from uvicorn and fastapi are redirected to db too.
+
+For development purposes logs are also printed to stdout.
+
 
 ## Interaction with API
 

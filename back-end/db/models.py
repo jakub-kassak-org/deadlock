@@ -1,9 +1,10 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, CheckConstraint, Time, Date
-from sqlalchemy import and_
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm.session import Session
-from sqlalchemy.ext.hybrid import hybrid_method
 from datetime import datetime
+
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, CheckConstraint, Time
+from sqlalchemy import and_
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.hybrid import hybrid_method
+from sqlalchemy.orm import relationship
 
 from .database import Base, utcnow
 
@@ -130,3 +131,14 @@ class AccessPoint(Base):
 
     ap_type = relationship('AccessPointType', backref='access_points')
 
+
+class Log(Base):
+    __tablename__ = 'log'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ap_id = Column(Integer, ForeignKey('access_point.id'), nullable=True)
+    time = Column(DateTime, nullable=False, server_default=utcnow())
+    msg = Column(String, nullable=False)
+    level = Column(String, nullable=True)
+    levelno = Column(Integer, nullable=False)
+    data = Column(JSONB, nullable=False)

@@ -1,0 +1,30 @@
+version: 1
+handlers:
+  db_handler:
+    class: loggers.DBHandler
+    formatter: simple_formatter
+    level: DEBUG
+  console_handler:
+    class: logging.StreamHandler
+    formatter: simple_formatter
+    level: DEBUG
+    stream: 'ext://sys.stdout'
+formatters:
+  simple_formatter:
+    format: '%(asctime)s: [%(levelname)s] %(message)s'
+loggers:
+  access:
+    level: DEBUG
+    handlers:
+      - db_handler
+      - console_handler
+    propagate: False
+  runtime:
+    level: DEBUG
+    handlers:
+      - db_handler
+      - console_handler
+    propagate: False
+root:
+  level: DEBUG
+disable_existing_loggers: False
