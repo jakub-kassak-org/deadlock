@@ -728,3 +728,23 @@ Success response example:
   }
 ]
 ```
+
+#### `[POST]/log/`
+Endpoint for logging from controllers.
+Example request body:
+```json
+{
+  "ip_addr": "0.0.0.1",
+  "time": "2022-01-15T15:36:17.515Z",
+  "msg": "string",
+  "data": {},
+  "level": "string",
+  "levelno": 0
+}
+```
+Success response example:
+```json
+{
+  "success": true
+}
+```

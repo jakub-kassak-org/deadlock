@@ -443,3 +443,18 @@ def get_groups_by_ap_type_and_time_spec(db: Session, ap_type_id: int, time_spec_
     groups = db.query(models.Group).filter(models.Group.id.in_(group_ids))
     result = [{'id': group.id, 'name': group.name} for group in groups]
     return result
+
+
+def add_log(db: Session, log_data: schemas.LogIn, ap_id: int) -> bool:
+    try:
+        db.add(models.Log(ap_id=ap_id,
+                          time=log_data.time,
+                          msg=log_data.msg,
+                          level=log_data.level,
+                          levelno=log_data.levelno,
+                          data=log_data.data))
+        db.commit()
+        return True
+    except Exception as e:
+        runtime_logger.exception(e)
+        return False

@@ -575,3 +575,15 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         "expiration_time": exp_time,
         "valid_for_minutes": ACCESS_TOKEN_EXPIRE_MINUTES
     }
+
+
+@app.post("/log/")
+def post_log(log_data: LogIn, db: Session = Depends(get_db),
+             current_user: User = Depends(get_current_active_user)):
+    db_ap = crud.get_ap_by_ip_addr(db, log_data.ip_addr)
+    if not db_ap:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Access point with ip address '{log_data.ip_addr}' does not exists"
+        )
+    return {"success": crud.add_log(db, log_data, db_ap.id)}

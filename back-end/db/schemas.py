@@ -194,3 +194,12 @@ class AccessPoint(AccessPointBase):
 
     class Config:
         orm_mode = True
+
+
+class LogIn(BaseModel):
+    ip_addr: str
+    time: datetime
+    msg: str
+    data: dict
+    level: Optional[str]
+    levelno: int
