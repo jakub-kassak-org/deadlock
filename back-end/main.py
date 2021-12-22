@@ -365,28 +365,47 @@ def delete_rule(rule_id: int, db: Session = Depends(get_db), current_user: User 
     }
 
 
-# Allows or denies
-@app.post("/entry/eval/")
-def evaluate_entry(card: str, access_point_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def evaluate_entry(card: str, ap_type_id: int, db: Session):
     group_ids = crud.get_groups_ids_by_card(db=db, card=card)
     if len(group_ids) == 0:
-        access_logger.info(f'({card}, {access_point_id}) - {log_messages.DENY}: {log_messages.MSG_USR_NOT_IN_ANY_GROUP}')
+        access_logger.info(
+            f'({card}, {ap_type_id}) - {log_messages.DENY}: {log_messages.MSG_USR_NOT_IN_ANY_GROUP}')
         return {'allow': False}  # This user is not in any group, therefore there are no rules for him -> Deny
-    ap_type_id = crud.get_ap_type_id_by_ap_id(db=db, ap_id=access_point_id)
-    if not ap_type_id:
-        # No ap_type for this ap
-        access_logger.error(f'({card}, {access_point_id}) - {log_messages.DENY}: {log_messages.MSG_NO_AP_TYPE_FOR_THIS_AP}')
-        return {'allow': False}  # Deny
     rules = crud.get_rules_by_groups_and_ap_type_id(db=db, group_ids=group_ids, ap_type_id=ap_type_id)
-    # Highest priority first, if any rule of highest priority is allow, then allow. TODO decide whether this is good
-    priority_and_result = sorted([(x.priority, x.allow) for x in rules], reverse=True)
+    # Highest priority first, if any rule of highest priority is deny, then deny. TODO decide whether this is good
+    priority_and_result = [(x.priority, x.allow) for x in rules]
+    priority_and_result.sort(key=lambda x: x[0] - x[1] * 0.5, reverse=True)
     if len(priority_and_result) == 0:
-        access_logger.info(f'({card}, {access_point_id}) - {log_messages.DENY}: {log_messages.MSG_NO_RULES_FOR_USER}')
+        access_logger.info(f'({card}, {ap_type_id}) - {log_messages.DENY}: {log_messages.MSG_NO_RULES_FOR_USER}')
         return {'allow': False}
     access_logger.info(
-        f'({card}, {access_point_id}) - {(log_messages.ALLOW if priority_and_result[0][1] else log_messages.DENY)}: Decided by a rule'
+        f'({card}, {ap_type_id}) - {(log_messages.ALLOW if priority_and_result[0][1] else log_messages.DENY)}: Decided by a rule'
     )
     return {'allow': priority_and_result[0][1]}
+
+
+@app.get("/entry/eval/ip_addr/{card}/{ip_addr}/")
+def evaluate_entry_by_access_point_ip_addr(card: str, ip_addr: str, db: Session = Depends(get_db),
+                                           current_user: User = Depends(get_current_active_user)):
+    db_ap = crud.get_ap_by_ip_addr(db, ip_addr)
+    if not db_ap:
+        access_logger.error(
+            f'({card}, {ip_addr}) - {log_messages.DENY}: {log_messages.MSG_NO_AP_FOR_THIS_IP_ADDR}')
+        return {"allow": False}
+    return evaluate_entry(card, db_ap.type_id, db)
+
+
+# Allows or denies
+@app.post("/entry/eval/")
+def evaluate_entry_by_access_point_id(card: str, ap_id: int, db: Session = Depends(get_db),
+                                      current_user: User = Depends(get_current_active_user)):
+    ap_type_id = crud.get_ap_type_id_by_ap_id(db=db, ap_id=ap_id)
+    if not ap_type_id:
+        # No ap_type for this ap
+        access_logger.error(
+            f'({card}, {ap_id}) - {log_messages.DENY}: {log_messages.MSG_NO_AP_TYPE_FOR_THIS_AP}')
+        return {'allow': False}
+    return evaluate_entry(card, ap_type_id, db)
 
 
 @app.post("/timespec/add/", response_model=TimeSpec)

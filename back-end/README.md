@@ -440,6 +440,16 @@ Example response:
 Deletes a rule with `id = rule_id`. Success response similar to the one
 described in `/usergroup/delete/{user_id}/{group_id}/`.
 
+#### `[GET] /entry/eval/ip_addr/{card}/{ip_addr}/`
+Allows or denies entry for user with `card` to access point with IP 'ip_addr'. Example response:
+```json
+{"allow": false}
+```
+
+#### `[POST]/entry/eval/`
+Same as previous, but send requests with params like `/entry/eval/?card=1234567891011&ap_id=1'`. And use access
+point id instead of IP.
+
 #### `[POST] /timespec/add/`
 Adds a time specification. Attribute `weekday_mask` works as follows.
 Days are numbered `0` through `6` inclusively, where `0` is Monday and `6` is Sunday.

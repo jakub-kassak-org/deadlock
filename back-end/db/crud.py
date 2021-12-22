@@ -268,6 +268,13 @@ def get_ap_by_id(db: Session, ap_id: int) -> dict:
     return res
 
 
+def get_ap_by_ip_addr(db: Session, ip_addr: str) -> Optional[models.AccessPoint]:
+    db_ap: Optional[models.AccessPoint] = db.query(models.AccessPoint).filter(models.AccessPoint.ip_addr == ip_addr).scalar()
+    if db_ap:
+        return db_ap
+    return None
+
+
 def get_aps_by_ap_type(db: Session, aptype_id: int) -> List[models.AccessPoint]:
     db_aps = db.query(models.AccessPoint).filter(models.AccessPoint.type_id == aptype_id).all()
     return db_aps
