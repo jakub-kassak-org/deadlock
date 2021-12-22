@@ -797,3 +797,9 @@ Same as before, but counts only logs from server.
 
 #### `[GET]/log/count/{ap_ip_addr}`
 Same as before, but counts only logs from access point with IP `ap_ip_addr`.
+
+## Scripts
+
+### User loading 
+Script `users.py` downloads XML file from address set in env `USERS_RETRIEVE_URL`. If not set opens file 
+specified in env `USERS_RETRIEVE_FILENAME`. Then sends these users to server and assigns them to groups.
