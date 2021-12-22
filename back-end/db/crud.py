@@ -347,7 +347,7 @@ def get_ap_type_id_by_ap_id(db, ap_id) -> Optional[int]:
     aptype = db.query(models.AccessPoint).filter(models.AccessPoint.id == ap_id).first()
     if not aptype:
         return None
-    return aptype.id
+    return aptype.type_id
 
 
 def create_ap_type(db: Session, ap_type: schemas.AccessPointTypeBase) -> models.AccessPointType:
