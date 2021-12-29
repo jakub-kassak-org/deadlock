@@ -607,3 +607,15 @@ def get_log_count(levelno: int = 30, time_from: datetime = datetime(2020, 1, 1),
         "from": "all"
     }
 
+
+@app.get("/log/count/server/")
+def get_log_count_from_server(levelno: int = 30, time_from: datetime = datetime(2020, 1, 1),
+                              time_to: datetime = datetime.utcnow(), db: Session = Depends(get_db),
+                              current_user: User = Depends(get_current_active_user)):
+    return {
+        "count": crud.get_log_count_by_ap_id(db, levelno, time_from, time_to, None),
+        "time_from": time_from,
+        "time_to": time_to,
+        "levelno": levelno,
+        "from": "server"
+    }

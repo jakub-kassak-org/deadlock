@@ -791,3 +791,6 @@ Success response example:
   "from": "all"
 }
 ```
+
+#### `[GET]/log/count/`
+Same as before, but counts only logs from server.

@@ -475,3 +475,13 @@ def get_log_count(db: Session, levelno: int, time_from: datetime, time_to: datet
         models.Log.time <= time_to,
         models.Log.levelno >= levelno
     ).scalar()
+
+
+def get_log_count_by_ap_id(db: Session, levelno: int, time_from: datetime, time_to: datetime,
+                           ap_id: Optional[int]):
+    return db.query(func.count(models.Log.id)).filter(
+        models.Log.ap_id == ap_id,
+        time_from <= models.Log.time,
+        models.Log.time <= time_to,
+        models.Log.levelno >= levelno
+    ).scalar()
