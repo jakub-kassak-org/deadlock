@@ -873,3 +873,9 @@ positive.
 ### User loading 
 Script `users.py` downloads XML file from address set in env `USERS_RETRIEVE_URL`. If not set opens file 
 specified in env `USERS_RETRIEVE_FILENAME`. Then sends these users to server and assigns them to groups.
+
+
+### Notifications
+Script `notifications.py` counts how many logs with set `levelno` exists, if it is too much, sends notification request
+to server.
+
