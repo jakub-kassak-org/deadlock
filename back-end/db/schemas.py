@@ -203,3 +203,17 @@ class LogIn(BaseModel):
     data: dict
     level: Optional[str]
     levelno: int
+
+
+class LogOut(BaseModel):
+    id: int
+    ap_id: Optional[int]
+    time: datetime
+    msg: str
+    level: Optional[str]
+    levelno: int
+    data: dict
+
+    class Config:
+        orm_mode = True
+

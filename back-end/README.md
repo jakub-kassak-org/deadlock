@@ -729,6 +729,35 @@ Success response example:
 ]
 ```
 
+#### `[GET]/log/`
+Get logs with `levelno` greater or equal then specified.
+```json
+[
+  {
+    "id": 11,
+    "ap_id": null,
+    "time": "2022-01-15T15:40:46.451478",
+    "msg": "172.26.0.1:47776 - \"GET /log/?offset=0&limit=100&levelno=0 HTTP/1.1\" 200",
+    "level": "INFO",
+    "levelno": 20,
+    "data": {
+      "args": [
+        "172.26.0.1:47776",
+        "GET",
+        "/log/?offset=0&limit=100&levelno=0",
+        "1.1",
+        200
+      ],
+      "lineno": 463,
+      "module": "h11_impl",
+      "funcName": "send",
+      "stackinfo": null,
+      "logger_name": "uvicorn.access"
+    }
+  }
+]
+```
+
 #### `[POST]/log/`
 Endpoint for logging from controllers.
 Example request body:

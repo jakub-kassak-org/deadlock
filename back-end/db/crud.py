@@ -445,6 +445,14 @@ def get_groups_by_ap_type_and_time_spec(db: Session, ap_type_id: int, time_spec_
     return result
 
 
+def get_logs(db: Session, offset: int, limit: int, levelno: int) -> List[models.Log]:
+    return db.query(models.Log)\
+        .filter(models.Log.levelno >= levelno)\
+        .order_by(models.Log.time.desc())\
+        .offset(offset)\
+        .limit(limit).all()
+
+
 def add_log(db: Session, log_data: schemas.LogIn, ap_id: int) -> bool:
     try:
         db.add(models.Log(ap_id=ap_id,

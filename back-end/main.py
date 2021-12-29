@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from pydantic import conint
 
 from db import models, crud
 from db.database import SessionLocal, engine
@@ -575,6 +576,12 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         "expiration_time": exp_time,
         "valid_for_minutes": ACCESS_TOKEN_EXPIRE_MINUTES
     }
+
+
+@app.get("/log/", response_model=List[LogOut])
+def get_logs(offset: conint(ge=0) = 0, limit: conint(ge=1) = 100, levelno: int = 30, db: Session = Depends(get_db),
+             current_user: User = Depends(get_current_active_user)):
+    return crud.get_logs(db, offset, limit, levelno)
 
 
 @app.post("/log/")
