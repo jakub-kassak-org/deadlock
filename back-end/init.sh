@@ -17,6 +17,12 @@ fi
 
 echo "initialization successfull"
 
-echo "starting server"
-uvicorn main:app --host 0.0.0.0 --port 80
-
+if [ -n "$STAGE" ] && [ "$STAGE" = "dev" ]; then
+  echo "starting scheduled tasks"
+  python scripts/my_schedule.py
+else
+  echo "starting scheduled tasks"
+  python scripts/my_schedule.py &
+  echo "starting server"
+  uvicorn main:app --host 0.0.0.0 --port 80
+fi
