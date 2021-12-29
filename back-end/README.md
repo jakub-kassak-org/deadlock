@@ -794,3 +794,6 @@ Success response example:
 
 #### `[GET]/log/count/`
 Same as before, but counts only logs from server.
+
+#### `[GET]/log/count/{ap_ip_addr}`
+Same as before, but counts only logs from access point with IP `ap_ip_addr`.

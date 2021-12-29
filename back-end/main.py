@@ -619,3 +619,24 @@ def get_log_count_from_server(levelno: int = 30, time_from: datetime = datetime(
         "levelno": levelno,
         "from": "server"
     }
+
+
+@app.get("/log/count/{ap_ip_addr}/")
+def get_log_count_by_ip_addr(ap_ip_addr: str, levelno: int = 30, time_from: datetime = datetime(2020, 1, 1),
+                             time_to: datetime = datetime.utcnow(), db: Session = Depends(get_db),
+                             current_user: User = Depends(get_current_active_user)):
+    ap = crud.get_ap_by_ip_addr(db, ap_ip_addr)
+    if ap is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Access point with IP {ap_ip_addr} does not exists"
+        )
+    return {
+        "count": crud.get_log_count_by_ap_id(db, levelno, time_from, time_to, ap.id),
+        "time_from": time_from,
+        "time_to": time_to,
+        "levelno": levelno,
+        "from": "controllers",
+        "ap_ip_addr": ap_ip_addr,
+        "ap_id": ap.id
+    }
