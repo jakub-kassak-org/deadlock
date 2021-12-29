@@ -777,3 +777,17 @@ Success response example:
   "success": true
 }
 ```
+
+#### `[GET]/log/count/`
+Get count of logs with `levelno` greater or equal then specified from `time_from` to `time_to`  
+Example params: `?levelno=30&time_from=2020-01-01T00%3A00%3A00&time_to=2022-01-15T15%3A46%3A22.944935`
+Success response example:
+```json
+{
+  "count": 0,
+  "time_from": "2020-01-01T00:00:00",
+  "time_to": "2022-01-15T15:46:22.944935",
+  "levelno": 30,
+  "from": "all"
+}
+```

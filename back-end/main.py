@@ -594,3 +594,16 @@ def post_log(log_data: LogIn, db: Session = Depends(get_db),
             detail=f"Access point with ip address '{log_data.ip_addr}' does not exists"
         )
     return {"success": crud.add_log(db, log_data, db_ap.id)}
+
+
+@app.get("/log/count/")
+def get_log_count(levelno: int = 30, time_from: datetime = datetime(2020, 1, 1), time_to: datetime = datetime.utcnow(),
+                  db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    return {
+        "count": crud.get_log_count(db, levelno, time_from, time_to),
+        "time_from": time_from,
+        "time_to": time_to,
+        "levelno": levelno,
+        "from": "all"
+    }
+

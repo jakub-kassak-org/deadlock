@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from datetime import datetime
 from typing import List, Tuple, Optional, Set
 import logging
@@ -466,3 +466,12 @@ def add_log(db: Session, log_data: schemas.LogIn, ap_id: int) -> bool:
     except Exception as e:
         runtime_logger.exception(e)
         return False
+
+
+def get_log_count(db: Session, levelno: int, time_from: datetime, time_to: datetime):
+    return db.query(func.count(models.Log.id)).filter(
+        models.Log.ap_id is not None,
+        time_from <= models.Log.time,
+        models.Log.time <= time_to,
+        models.Log.levelno >= levelno
+    ).scalar()
