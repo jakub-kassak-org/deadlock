@@ -15,14 +15,28 @@ else
     echo "db_seeder fail"
 fi
 
-echo "initialization successfull"
+echo "initialization successful"
 
-if [ -n "$STAGE" ] && [ "$STAGE" = "dev" ]; then
-  echo "starting scheduled tasks"
-  python scripts/my_schedule.py
+if [ -n "$STAGE" ]; then
+  if [ "$STAGE" = "dev" ]; then
+    echo "starting scheduled tasks"
+    python scripts/my_schedule.py
+  elif [ "$STAGE" = "test"  ]; then
+    echo "starting server"
+    uvicorn main:app --host 0.0.0.0 --port 80 &
+    PID=$!
+    sleep 2
+    echo "running users"
+    python scripts/users.py
+    wait $PID
+  elif [ "$STAGE" = "prod" ]; then
+    echo "starting scheduled tasks"
+    python scripts/my_schedule.py &
+    echo "starting server"
+    uvicorn main:app --host 0.0.0.0 --port 80
+  else
+    echo "stage $STAGE is unknown"
+  fi
 else
-  echo "starting scheduled tasks"
-  python scripts/my_schedule.py &
-  echo "starting server"
-  uvicorn main:app --host 0.0.0.0 --port 80
+  echo "no stage set"
 fi
