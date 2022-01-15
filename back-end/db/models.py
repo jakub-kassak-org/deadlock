@@ -48,7 +48,8 @@ class Rule(Base):
     ap_type_id = Column(Integer, ForeignKey('access_point_type.id'), nullable=False)
     time_spec_id = Column(Integer, ForeignKey('time_spec.id'), nullable=False)
     time_spec = relationship('TimeSpec', back_populates='rules')
-    priority = Column('priority', Integer, CheckConstraint('0 <= priority AND priority <= 10'), nullable=False, server_default='5')
+    priority = Column('priority', Integer, CheckConstraint('0 <= priority AND priority <= 10'),
+                      nullable=False, server_default='5')
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
 
@@ -81,7 +82,8 @@ class TimeSpec(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String, unique=True)
     # Day number i if (weekday_mask & (1 << i)), 0 is Monday
-    weekday_mask = Column('weekday_mask', Integer, CheckConstraint('0 <= weekday_mask AND weekday_mask <= 255'), nullable=False)
+    weekday_mask = Column('weekday_mask', Integer, CheckConstraint('0 <= weekday_mask AND weekday_mask <= 255'),
+                          nullable=False)
     time_from = Column(Time, nullable=False)
     time_to = Column(Time, nullable=False)
     date_from = Column(DateTime, nullable=False, server_default=utcnow())
@@ -181,7 +183,8 @@ class NotificationUser(Base):
     __tablename__ = 'notification_user'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    notification_id = Column(Integer, ForeignKey('notification.id', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    notification_id = Column(Integer, ForeignKey('notification.id', onupdate="CASCADE", ondelete="CASCADE"),
+                             nullable=False)
     user_id = Column(Integer, ForeignKey('users.id', onupdate="CASCADE", ondelete="CASCADE"))
     sent = Column(Boolean, nullable=False, server_default='False')
     viewed = Column(Boolean, nullable=False, server_default='False')

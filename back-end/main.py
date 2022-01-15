@@ -125,7 +125,8 @@ async def root():
 
 
 @app.get('/users/', response_model=List[UserOut])
-async def get_users(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+async def get_users(offset: int = 0, limit: int = 100, db: Session = Depends(get_db),
+                    current_user: User = Depends(get_current_active_user)):
     users = crud.get_users(db, offset=offset, limit=limit)
     return users
 
@@ -136,7 +137,8 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 
 
 @app.get("/users/{user_id}/get_groups/", response_model=List[GroupBase])
-def get_groups_of_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def get_groups_of_user(user_id: int, db: Session = Depends(get_db),
+                       current_user: User = Depends(get_current_active_user)):
     groups = crud.get_groups_by_user_id(db=db, user_id=user_id)
     return groups
 
@@ -156,7 +158,8 @@ def create_user(user: UserBase, db: Session = Depends(get_db), current_user: Use
 def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_id(db=db, user_id=user_id)
     if not db_user:
-        raise HTTPException(status_code=400, detail=f"User with id {user_id} does not exist, therefore can't be deleted.")
+        raise HTTPException(status_code=400,
+                            detail=f"User with id {user_id} does not exist, therefore can't be deleted.")
     deleted, detail = crud.delete_user(db=db, user_id=user_id)
     return {
         'was_deleted': deleted,
@@ -166,10 +169,11 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User 
 
 
 @app.put("/users/update/{user_id}/")
-def update_user(user_id: int, updated_user: UserBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def update_user(user_id: int, updated_user: UserBase, db: Session = Depends(get_db),
+                current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_id(db, user_id=user_id)
     if not db_user:
-        raise HTTPException(status_code=400, detail=f"User with id {user_id} does not exist, therefore can't be updated.")
+        raise HTTPException(status_code=400, detail=f"User with id {user_id} does not exist.")
     updated, detail = crud.update_user(db=db, user_id=user_id, data=updated_user)
     return {
         'was_updated': updated,
@@ -219,20 +223,22 @@ def assign_ap_type_to_user(user_id: int, ap_type_id: int, timespec: TimeSpecBase
 
 @app.get("/groups/by_ap_type_and_time_spec/")
 def get_groups_by_ap_type_and_time_spec(ap_type_id: int, time_spec_id: int, db: Session = Depends(get_db),
-                                              current_user: User = Depends(get_current_active_user)):
+                                        current_user: User = Depends(get_current_active_user)):
     db_groups = crud.get_groups_by_ap_type_and_time_spec(db=db, ap_type_id=ap_type_id, time_spec_id=time_spec_id)
     return {'groups': db_groups}
 
 
 @app.get("/groups/")
-async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+async def get_groups(offset: int = 0, limit: int = 100, db: Session = Depends(get_db),
+                     current_user: User = Depends(get_current_active_user)):
     groups = crud.get_groups(db, offset=offset, limit=limit)
     return {'groups': groups}
 
 
 # Returns list of users from this group
 @app.get("/groups/{group_id}/")
-async def get_group(group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+async def get_group(group_id: int, db: Session = Depends(get_db),
+                    current_user: User = Depends(get_current_active_user)):
     users_in_group = crud.get_users_from_group(db=db, group_id=group_id)
     return {
         'group_id': group_id,
@@ -241,7 +247,8 @@ async def get_group(group_id: int, db: Session = Depends(get_db), current_user: 
 
 
 @app.post("/groups/", response_model=Group)
-def create_group(group: GroupCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def create_group(group: GroupCreate, db: Session = Depends(get_db),
+                 current_user: User = Depends(get_current_active_user)):
     db_group = crud.get_group_by_name(db=db, name=group.name)
     if db_group:
         raise HTTPException(status_code=400, detail="Group with this name already registered.")
@@ -252,7 +259,8 @@ def create_group(group: GroupCreate, db: Session = Depends(get_db), current_user
 def delete_group(group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_group = crud.get_group_by_id(db=db, group_id=group_id)
     if not db_group:
-        raise HTTPException(status_code=400, detail=f"Group with id {group_id} does not exist, therefore can't be deleted.")
+        raise HTTPException(status_code=400,
+                            detail=f"Group with id {group_id} does not exist, therefore can't be deleted.")
     deleted, detail = crud.delete_group(db=db, group_id=group_id)
     return {
         'was_deleted': deleted,
@@ -262,10 +270,12 @@ def delete_group(group_id: int, db: Session = Depends(get_db), current_user: Use
 
 
 @app.put("/groups/update/{group_id}/")
-def update_group(group_id: int, updated_group: GroupCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def update_group(group_id: int, updated_group: GroupCreate, db: Session = Depends(get_db),
+                 current_user: User = Depends(get_current_active_user)):
     db_group = crud.get_group_by_id(db, group_id=group_id)
     if not db_group:
-        raise HTTPException(status_code=400, detail=f"Group with id {group_id} does not exist, therefore can't be updated.")
+        raise HTTPException(status_code=400,
+                            detail=f"Group with id {group_id} does not exist, therefore can't be updated.")
     updated, detail = crud.update_group(db=db, group_id=group_id, data=updated_group)
     return {
         'was_updated': updated,
@@ -279,10 +289,12 @@ def change_ruleset_of_group(group_id: int, include_rules_ids: List[int], exclude
                             db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     include_rules_cnt = crud.get_rules_by_ids(db=db, rules_ids=include_rules_ids).count()
     if include_rules_cnt != len(include_rules_ids):
-        raise HTTPException(status_code=400, detail="At least one rule id in include_rules_ids does not exist in the database.")
+        raise HTTPException(status_code=400,
+                            detail="At least one rule id in include_rules_ids does not exist in the database.")
     exclude_rules_cnt = crud.get_rules_by_ids(db=db, rules_ids=exclude_rules_ids).count()
     if exclude_rules_cnt != len(exclude_rules_ids):
-        raise HTTPException(status_code=400, detail="At least one rule id in exclude_rules_ids does not exist in the database.")
+        raise HTTPException(status_code=400,
+                            detail="At least one rule id in exclude_rules_ids does not exist in the database.")
     curr_group_rules_ids = set(crud.get_rules_ids_by_group_id(db=db, group_id=group_id))
     updated_group_rules_ids = curr_group_rules_ids.union(set(include_rules_ids)) - set(exclude_rules_ids)
     updated, detail = crud.set_group_rules_ids(db=db, group_id=group_id, rules_ids=updated_group_rules_ids)
@@ -339,7 +351,8 @@ def delete_topics_of_group(group_id: int, topics: List[str], db: Session = Depen
 
 
 @app.post("/usergroup/add/", response_model=UserGroup)
-def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db),
+                      current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_id(db=db, user_id=user_id)
     if not db_user:
         raise HTTPException(status_code=400, detail=f"User with id {user_id} not found.")
@@ -353,7 +366,8 @@ def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db)
 
 
 @app.delete("/usergroup/delete/{user_id}/{group_id}/", response_model=UserGroupDelete)
-def delete_user_from_group(user_id: int, group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def delete_user_from_group(user_id: int, group_id: int, db: Session = Depends(get_db),
+                           current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_id(db=db, user_id=user_id)
     if not db_user:
         raise HTTPException(status_code=400, detail=f"User with id {user_id} not found.")
@@ -362,7 +376,8 @@ def delete_user_from_group(user_id: int, group_id: int, db: Session = Depends(ge
         raise HTTPException(status_code=400, detail=f"Group with id {group_id} not found.")
     db_usergroup = crud.get_usergroup(db=db, user_id=user_id, group_id=group_id)
     if not db_usergroup:
-        raise HTTPException(status_code=400, detail=f"User with id {user_id} is not in the group with id {group_id}, nothing to delete")
+        raise HTTPException(status_code=400,
+                            detail=f"User with id {user_id} is not in the group with id {group_id}, nothing to delete")
     deleted, detail = crud.delete_user_from_group(db=db, usergroup_id=db_usergroup.id)
     return {
         'was_deleted': deleted,
@@ -380,10 +395,10 @@ def create_rule(rule: RuleBase, db: Session = Depends(get_db), current_user: Use
         raise HTTPException(status_code=400, detail=f"Rule with name {rule.name} already exists.")
     db_ap_type = crud.get_ap_type_by_id(db=db, ap_type_id=rule.ap_type_id)
     if not db_ap_type:
-        raise HTTPException(status_code=400, detail=f"AccesspointType with id {rule.ap_type_id} does not exist. Create it first please.")
+        raise HTTPException(status_code=400, detail=f"AccesspointType with id {rule.ap_type_id} does not exist.")
     db_time_spec = crud.get_time_spec_by_id(db=db, time_spec_id=rule.time_spec_id)
     if not db_time_spec:
-        raise HTTPException(status_code=400, detail=f"TimeSpec with id {rule.time_spec_id} does not exist. Create it first please.")
+        raise HTTPException(status_code=400, detail=f"TimeSpec with id {rule.time_spec_id} does not exist.")
     return crud.create_rule(db=db, rule=rule)
 
 
@@ -444,7 +459,8 @@ def evaluate_entry_by_access_point_id(card: str, ap_id: int, db: Session = Depen
 
 
 @app.post("/timespec/add/", response_model=TimeSpec)
-def create_timespec(timespec: TimeSpecBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def create_timespec(timespec: TimeSpecBase, db: Session = Depends(get_db),
+                    current_user: User = Depends(get_current_active_user)):
     db_timespec = crud.get_time_spec_by_title(db=db, time_spec_title=timespec.title)
     if db_timespec:
         raise HTTPException(status_code=400, detail=f"TimeSpec with title {timespec.title} already exists.")
@@ -452,10 +468,11 @@ def create_timespec(timespec: TimeSpecBase, db: Session = Depends(get_db), curre
 
 
 @app.delete("/timespec/delete/{time_spec_id}/")
-def delete_timespec(time_spec_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def delete_timespec(time_spec_id: int, db: Session = Depends(get_db),
+                    current_user: User = Depends(get_current_active_user)):
     db_timespec = crud.get_time_spec_by_id(db=db, time_spec_id=time_spec_id)
     if not db_timespec:
-        raise HTTPException(status_code=400, detail=f"TimeSpec with id {time_spec_id} does not exist, nothing to delete.")
+        raise HTTPException(status_code=400, detail=f"TimeSpec with id {time_spec_id} does not exist.")
     deleted, detail = crud.delete_time_spec(db=db, time_spec_id=time_spec_id)
     return {
         'was_deleted': deleted,
@@ -466,7 +483,7 @@ def delete_timespec(time_spec_id: int, db: Session = Depends(get_db), current_us
 
 @app.get("/timespec/get_ids/")
 def get_timespec_ids(weekday: int, time_from: str, time_to: str, db: Session = Depends(get_db),
-                    current_user: User = Depends(get_current_active_user)):
+                     current_user: User = Depends(get_current_active_user)):
     hour_minutes: List[List[int, int], List[int, int]] = [[int(x) for x in t.split(':')] for t in [time_from, time_to]]
     for i in range(2):
         if not 0 <= hour_minutes[i][0] <= 23:
@@ -480,24 +497,27 @@ def get_timespec_ids(weekday: int, time_from: str, time_to: str, db: Session = D
 
 
 @app.get("/ap/")
-def get_access_points(offset: int = 0, limit: int = 100,
-                      db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def get_access_points(offset: int = 0, limit: int = 100, db: Session = Depends(get_db),
+                      current_user: User = Depends(get_current_active_user)):
     db_aps = crud.get_aps(db=db, offset=offset, limit=limit)
     return {'access_points': db_aps}
 
 
 @app.get("/ap/{ap_id}/")
-def get_access_point_info(ap_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def get_access_point_info(ap_id: int, db: Session = Depends(get_db),
+                          current_user: User = Depends(get_current_active_user)):
     return crud.get_ap_by_id(db=db, ap_id=ap_id)
 
 
 @app.post("/ap/add/", response_model=AccessPoint)
-def create_access_point(ap: AccessPointBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def create_access_point(ap: AccessPointBase, db: Session = Depends(get_db),
+                        current_user: User = Depends(get_current_active_user)):
     return crud.create_ap(db=db, ap_base=ap)
 
 
 @app.delete("/ap/delete/{ap_id}/")
-def delete_access_point(ap_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def delete_access_point(ap_id: int, db: Session = Depends(get_db),
+                        current_user: User = Depends(get_current_active_user)):
     db_ap = crud.get_aps_by_ids(db=db, ids=[ap_id])
     if db_ap.count() == 0:
         raise HTTPException(status_code=400, detail=f"Access point with id={ap_id} does not exist in the database.")
@@ -510,8 +530,8 @@ def delete_access_point(ap_id: int, db: Session = Depends(get_db), current_user:
 
 
 @app.put("/ap/update/{ap_id}/")
-def update_access_point(ap_id: int, updated_ap: AccessPointBase,
-                        db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def update_access_point(ap_id: int, updated_ap: AccessPointBase, db: Session = Depends(get_db),
+                        current_user: User = Depends(get_current_active_user)):
     db_ap = crud.get_aps_by_ids(db=db, ids=[ap_id])
     if db_ap.count() == 0:
         raise HTTPException(status_code=400, detail=f"Access point with id={ap_id} does not exist in the database.")
@@ -530,7 +550,8 @@ def get_aptypes(db: Session = Depends(get_db), current_user: User = Depends(get_
 
 
 @app.post("/aptype/add/", response_model=AccessPointType)
-def create_aptype(aptype: AccessPointTypeBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def create_aptype(aptype: AccessPointTypeBase, db: Session = Depends(get_db),
+                  current_user: User = Depends(get_current_active_user)):
     db_aptype = crud.get_ap_type_by_name(db=db, ap_type_name=aptype.name)
     if db_aptype:
         raise HTTPException(status_code=400, detail=f"AccesspointType with name {aptype.name} already exists.")
@@ -538,7 +559,7 @@ def create_aptype(aptype: AccessPointTypeBase, db: Session = Depends(get_db), cu
 
 
 @app.delete("/aptype/delete/{ap_type_id}/")
-def delete_aptype(ap_type_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def delete_aptype(ap_type_id: int, db: Session = Depends(get_db), c_user: User = Depends(get_current_active_user)):
     db_aptype = crud.get_ap_type_by_id(db=db, ap_type_id=ap_type_id)
     if not db_aptype:
         raise HTTPException(status_code=400, detail=f"APType with id {ap_type_id} does not exist, nothing to delete.")
@@ -551,14 +572,14 @@ def delete_aptype(ap_type_id: int, db: Session = Depends(get_db), current_user: 
 
 
 @app.get("/aptype/{aptype_id}/get_aps/", response_model=List[AccessPointOut])
-def get_aps_by_aptype(aptype_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def get_aps_by_aptype(aptype_id: int, db: Session = Depends(get_db), c_user: User = Depends(get_current_active_user)):
     db_aps = crud.get_aps_by_ap_type(db=db, aptype_id=aptype_id)
     return db_aps
 
 
 @app.put("/aptype/{aptype_id}/add_aps/")
-def add_aps_to_aptype(aptype_id: int, add_ids: List[int],
-                      db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def add_aps_to_aptype(aptype_id: int, add_ids: List[int], db: Session = Depends(get_db),
+                      current_user: User = Depends(get_current_active_user)):
     db_aptype = crud.get_ap_type_by_id(db=db, ap_type_id=aptype_id)
     if not db_aptype:
         raise HTTPException(status_code=400, detail=f"Access point type with id={aptype_id} does not exist.")
@@ -573,14 +594,15 @@ def add_aps_to_aptype(aptype_id: int, add_ids: List[int],
 
 
 @app.put("/aptype/{aptype_id}/remove_aps/")
-def remove_aps_from_aptype(aptype_id: int, remove_ids: List[int],
-                      db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def remove_aps_from_aptype(aptype_id: int, remove_ids: List[int], db: Session = Depends(get_db),
+                           current_user: User = Depends(get_current_active_user)):
     db_aptype = crud.get_ap_type_by_id(db=db, ap_type_id=aptype_id)
     if not db_aptype:
         raise HTTPException(status_code=400, detail=f"Access point type with id={aptype_id} does not exist.")
     db_aps = crud.get_aps_by_ids(db=db, ids=remove_ids)
     if db_aps.count() != len(remove_ids):
-        raise HTTPException(status_code=400, detail="At least one of the provided access point ids does not belong to any access point.")
+        raise HTTPException(status_code=400,
+                            detail="At least one of the provided access point ids does not belong to any access point.")
     removed = crud.remove_aps_from_aptype(db=db, aptype_id=aptype_id, ap_ids=remove_ids)
     return {
         'success': removed,
@@ -589,7 +611,7 @@ def remove_aps_from_aptype(aptype_id: int, remove_ids: List[int],
 
 
 @app.get("/aptype/{aptype_id}/get_rules/", response_model=List[RuleNoGroups])
-def get_rules_by_aptype(aptype_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+def get_rules_by_aptype(aptype_id: int, db: Session = Depends(get_db), c_user: User = Depends(get_current_active_user)):
     db_aptype = crud.get_ap_type_by_id(db=db, ap_type_id=aptype_id)
     if not db_aptype:
         raise HTTPException(status_code=400, detail=f"Access point type with id={aptype_id} does not exist.")

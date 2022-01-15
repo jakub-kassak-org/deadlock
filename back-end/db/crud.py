@@ -125,7 +125,7 @@ def get_users_from_group(db: Session, group_id: int) -> Optional[List[models.Use
     db_group = db.query(models.Group).filter(models.Group.id == group_id).first()
     if not db_group:
         return None
-    users_group = db.query(models.UserGroup).filter(models.UserGroup.group_id == group_id)  # [user_id, group_id] where group_id = group_id
+    users_group = db.query(models.UserGroup).filter(models.UserGroup.group_id == group_id)
     user_ids = set([x.user_id for x in users_group])
     users = db.query(models.User).filter(models.User.id.in_(user_ids)).all()
     return users
@@ -200,7 +200,9 @@ def remove_topics_of_group(db: Session, group_id: int, topics: List[str]):
 
 
 def get_usergroup(db: Session, user_id: int, group_id: int) -> models.UserGroup:
-    return db.query(models.UserGroup).filter(and_(models.UserGroup.user_id == user_id, models.UserGroup.group_id == group_id)).first()
+    return db.query(models.UserGroup)\
+        .filter(and_(models.UserGroup.user_id == user_id, models.UserGroup.group_id == group_id))\
+        .first()
 
 
 def add_user_to_group(db: Session, user_id: int, group_id: int) -> models.UserGroup:
@@ -301,7 +303,10 @@ def get_ap_by_id(db: Session, ap_id: int) -> dict:
 
 
 def get_ap_by_ip_addr(db: Session, ip_addr: str) -> Optional[models.AccessPoint]:
-    db_ap: Optional[models.AccessPoint] = db.query(models.AccessPoint).filter(models.AccessPoint.ip_addr == ip_addr).scalar()
+    db_ap: Optional[models.AccessPoint] = db\
+        .query(models.AccessPoint)\
+        .filter(models.AccessPoint.ip_addr == ip_addr)\
+        .scalar()
     if db_ap:
         return db_ap
     return None
@@ -360,6 +365,7 @@ def add_aps_to_aptype(db: Session, aptype_id: int, ap_ids: List[int]) -> bool:
     return True
 
 
+#TODO fix this function
 def remove_aps_from_aptype(db: Session, aptype_id: int, ap_ids: List[int]) -> bool:
     try:
         for ap_id in ap_ids:
@@ -444,7 +450,8 @@ def delete_time_spec(db: Session, time_spec_id: int) -> Tuple[bool, str]:
 
 
 # Does not take date_from and date_to into account, returns all that match weekday, time_from, time_to
-def get_time_spec_by_datetimes(db: Session, weekday: int, time_from: datetime.time, time_to: datetime.time) -> List[dict]:
+def get_time_spec_by_datetimes(db: Session, weekday: int, time_from: datetime.time,
+                               time_to: datetime.time) -> List[dict]:
     time_specs = db.query(models.TimeSpec).filter(
                     and_(
                         models.TimeSpec.weekday_mask.op('&')(1 << weekday) > 0,

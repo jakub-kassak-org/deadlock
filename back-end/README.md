@@ -1,57 +1,6 @@
 # deadlock-server
 
 This API is developed using [FastAPI](https://fastapi.tiangolo.com/).
-
-### How to setup locally
-
-#### Python version and requirements
-Create a `python3.7` virtual enviroment and activate it.
-Install requirements using `pip install -r requirements.txt`. 
-
-#### Starting a DB and providing testing data
-Start a Postgres server locally. Create a database called `test` owned by user `test`.
-Now let's fill the data from `fixtures.sql` into the database. Run those from terminal:
-```
-su test
-psql
-```
-The Postgres console should start up. Execute those commands in it to reset it:
-```sql
-DROP SCHEMA public CASCADE;
-CREATE SCHEMA public;
-```
-Exit Postgres console.
-Now run `python main.py` to let it create tables.
-After a few seconds, `main.py` should finish creating tables. Let's fill testing
-data into the database:
-```
-psql -f fixtures.sql
-```
-
-#### Run the server
-```
-uvicorn main:app --reload
-```
-
-### How to log
-Logging configuration is in `logging_conf.yml`.
-There are 2 loggers in `main.py`.
-
-First of them is `access_logger`, which is used
-for access logs.
-
-Access logging happens in `/entry/eval/` endpoint. Logs show a pair
-`(card_number, access_point_id)` in every log.
-
-Second of them is `runtime_logger`, which is used
-for runtime logs, such as runtime exceptions. It
-logs into a file (`runtime.log`).
-
-All logs are saved in database. Even logs from uvicorn and fastapi are redirected to db too.
-
-For development purposes logs are also printed to stdout.
-
-
 ## Interaction with API
 
 ### Superuser
@@ -879,3 +828,54 @@ specified in env `USERS_RETRIEVE_FILENAME`. Then sends these users to server and
 Script `notifications.py` counts how many logs with set `levelno` exists, if it is too much, sends notification request
 to server.
 
+
+## How to setup locally
+No longer necessary, because application is containerized with Docker. But if you want to run locally, 
+follow these steps.
+
+#### Python version and requirements
+Create a `python3.7` virtual enviroment and activate it.
+Install requirements using `pip install -r requirements.txt`. 
+
+#### Starting a DB and providing testing data
+Start a Postgres server locally. Create a database called `test` owned by user `test`.
+Now let's fill the data from `fixtures.sql` into the database. Run those from terminal:
+```
+su test
+psql
+```
+The Postgres console should start up. Execute those commands in it to reset it:
+```sql
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+```
+Exit Postgres console.
+Now run `python main.py` to let it create tables.
+After a few seconds, `main.py` should finish creating tables. Let's fill testing
+data into the database:
+```
+psql -f fixtures.sql
+```
+
+#### Run the server
+```
+uvicorn main:app --reload
+```
+
+## How to log
+Logging configuration is in `logging_conf.yml`.
+There are 2 loggers in `main.py`.
+
+First of them is `access_logger`, which is used
+for access logs.
+
+Access logging happens in `/entry/eval/` endpoint. Logs show a pair
+`(card_number, access_point_id)` in every log.
+
+Second of them is `runtime_logger`, which is used
+for runtime logs, such as runtime exceptions. It
+logs into a file (`runtime.log`).
+
+All logs are saved in database. Even logs from uvicorn and fastapi are redirected to db too.
+
+For development purposes logs are also printed to stdout.
