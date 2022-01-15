@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, delete
 from typing import List, Tuple, Optional, Set
 import logging
 
@@ -182,6 +182,20 @@ def add_topics_of_group(db: Session, group_id: int, topics: List[str]) -> bool:
         runtime_logger.exception(e)
         return False
     return True
+
+
+def remove_topics_of_group(db: Session, group_id: int, topics: List[str]):
+    try:
+        db.execute(
+            delete(models.TopicGroup)
+            .where(models.TopicGroup.group_id == group_id)
+            .where(models.TopicGroup.topic.in_(topics))
+        )
+        db.commit()
+        return True
+    except Exception as e:
+        runtime_logger.exception(e)
+        return False
 
 
 def get_usergroup(db: Session, user_id: int, group_id: int) -> models.UserGroup:

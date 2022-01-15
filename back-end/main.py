@@ -320,6 +320,20 @@ def add_topics_of_group(group_id: int, topics: List[str], db: Session = Depends(
     }
 
 
+@app.delete("/groups/{group_id}/topics/")
+def delete_topics_of_group(group_id: int, topics: List[str], db: Session = Depends(get_db),
+                           current_user: User = Depends(get_current_active_user)):
+    exists_group(db, group_id)
+    current_topics = crud.get_topics_of_group(db, group_id)
+    difference = set(topics) - set(current_topics)
+    if difference:
+        raise HTTPException(status_code=400, detail=f"Topics {difference} are not assigned to group {group_id}.")
+    return {
+        "success": crud.remove_topics_of_group(db, group_id, topics),
+        "id": group_id
+    }
+
+
 @app.post("/usergroup/add/", response_model=UserGroup)
 def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_id(db=db, user_id=user_id)

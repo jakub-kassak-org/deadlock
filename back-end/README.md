@@ -374,6 +374,16 @@ Success response example:
 ```
 
 
+#### `[DELETE]/groups/{group_id}/topics/`
+Delete topics of group. Success response example:
+```json
+{
+  "success": true,
+  "id": 1
+}
+```
+
+
 #### `[GET] /groups/by_ap_type_and_time_spec/`
 Given `ap_type_id` and `time_spec_id` (mandatory query parameters),
 returns a list of group names, that use access points
