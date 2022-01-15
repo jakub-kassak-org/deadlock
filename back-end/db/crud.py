@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, func
-from datetime import datetime
+from sqlalchemy import func
 from typing import List, Tuple, Optional, Set
 import logging
+
+from sqlalchemy.exc import IntegrityError
 
 from . import models, schemas
 from db.models import *
@@ -491,3 +492,22 @@ def get_log_count_by_ap_id(db: Session, levelno: int, time_from: datetime, time_
 def get_topics(db: Session, offset: int, limit: int):
     return [x[0] for x in db.query(Topic.topic).offset(offset).limit(limit).all()]
 
+
+def exists_topic(db: Session, topic: str) -> Topic:
+    return db.query(Topic).filter(Topic.topic == topic).scalar()
+
+
+def create_topic(db: Session, topic: str):
+    db.add(Topic(topic=topic))
+    db.commit()
+    return True
+
+
+def delete_topic(db: Session, topic: str):
+    try:
+        db.query(Topic).filter(Topic.topic == topic).delete()
+        db.commit()
+        return True
+    except IntegrityError as e:
+        runtime_logger.info(e)
+        return False

@@ -638,3 +638,12 @@ def get_log_count_by_ip_addr(ap_ip_addr: str, levelno: int = 30, time_from: date
 def get_topics(offset: int = 0, limit: int = 100, db: Session = Depends(get_db),
                current_user: User = Depends(get_current_active_user)):
     return {"topics": crud.get_topics(db, offset, limit)}
+
+
+@app.delete("/topics/")
+def delete_topic(topic: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    if not crud.exists_topic(db, topic):
+        raise HTTPException(status_code=400, detail=f"Topic '{topic}' does not exist, therefore can't be deleted.")
+    if not crud.delete_topic(db, topic):
+        raise HTTPException(status_code=400, detail=f"Topic '{topic}' is assigned to some group or notification")
+    return {"success": True}
