@@ -632,3 +632,9 @@ def get_log_count_by_ip_addr(ap_ip_addr: str, levelno: int = 30, time_from: date
         "ap_ip_addr": ap_ip_addr,
         "ap_id": ap.id
     }
+
+
+@app.get("/topics/")
+def get_topics(offset: int = 0, limit: int = 100, db: Session = Depends(get_db),
+               current_user: User = Depends(get_current_active_user)):
+    return {"topics": crud.get_topics(db, offset, limit)}

@@ -36,4 +36,6 @@ engine.execute("""
     INSERT INTO group_rule(group_id, rule_id) VALUES
         (1, 2),
         (1, 3);
+    INSERT INTO topic (topic) VALUES 
+        ('topic1');
 """)

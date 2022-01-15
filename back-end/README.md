@@ -777,6 +777,19 @@ Same as before, but counts only logs from server.
 #### `[GET]/log/count/{ap_ip_addr}`
 Same as before, but counts only logs from access point with IP `ap_ip_addr`.
 
+
+#### `[GET]/topics/`
+Returns notification topics.
+Success response example:
+```json
+{
+  "topics": [
+    "topic1"
+  ]
+}
+```
+
+
 ## Scripts
 
 ### User loading 

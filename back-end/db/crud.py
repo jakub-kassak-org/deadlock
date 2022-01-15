@@ -5,6 +5,7 @@ from typing import List, Tuple, Optional, Set
 import logging
 
 from . import models, schemas
+from db.models import *
 
 root_logger = logging.getLogger('root')
 runtime_logger = logging.getLogger('runtime')
@@ -485,3 +486,8 @@ def get_log_count_by_ap_id(db: Session, levelno: int, time_from: datetime, time_
         models.Log.time <= time_to,
         models.Log.levelno >= levelno
     ).scalar()
+
+
+def get_topics(db: Session, offset: int, limit: int):
+    return [x[0] for x in db.query(Topic.topic).offset(offset).limit(limit).all()]
+

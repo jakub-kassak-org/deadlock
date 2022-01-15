@@ -142,3 +142,12 @@ class Log(Base):
     level = Column(String, nullable=True)
     levelno = Column(Integer, nullable=False)
     data = Column(JSONB, nullable=False)
+
+
+class Topic(Base):
+    __tablename__ = "topic"
+
+    topic = Column(String, primary_key=True)
+    created = Column(DateTime, server_default=utcnow())
+    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
+    # groups = relationship('Group', secondary='topic_group')
