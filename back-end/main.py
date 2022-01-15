@@ -640,6 +640,13 @@ def get_topics(offset: int = 0, limit: int = 100, db: Session = Depends(get_db),
     return {"topics": crud.get_topics(db, offset, limit)}
 
 
+@app.post("/topics/")
+def create_topic(topic: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    if crud.exists_topic(db, topic):
+        raise HTTPException(status_code=400, detail=f"Topic '{topic}' already exists, therefore can't be created.")
+    return {"success": crud.create_topic(db, topic)}
+
+
 @app.delete("/topics/")
 def delete_topic(topic: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     if not crud.exists_topic(db, topic):

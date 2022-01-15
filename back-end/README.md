@@ -795,7 +795,11 @@ Success response example:
 ```
 
 
-#### '[DELETE]/topics/'
+#### `[POST]/topics/`
+Creates new topic.
+
+
+#### `[DELETE]/topics/`
 Deletes topic from server. Topic can not be assigned to any group or notification, otherwise deletion will fail.
 
 
