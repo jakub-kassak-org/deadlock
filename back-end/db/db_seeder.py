@@ -38,4 +38,6 @@ engine.execute("""
         (1, 3);
     INSERT INTO topic (topic) VALUES 
         ('topic1');
+    INSERT INTO topic_group (topic, group_id) VALUES 
+        ('topic1', 1);
 """)

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, CheckConstraint, Time
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, CheckConstraint, Time, UniqueConstraint
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.hybrid import hybrid_method
@@ -33,8 +33,9 @@ class Group(Base):
     name = Column(String, index=True, unique=True)
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
-
-    rules = relationship('GroupRule')
+    users = relationship('User', secondary='user_group')
+    rules = relationship('Rule', secondary='group_rule')
+    topics = relationship('Topic', secondary='topic_group')
 
 
 class Rule(Base):
@@ -150,4 +151,15 @@ class Topic(Base):
     topic = Column(String, primary_key=True)
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
-    # groups = relationship('Group', secondary='topic_group')
+    groups = relationship('Group', secondary='topic_group')
+
+
+class TopicGroup(Base):
+    __tablename__ = "topic_group"
+    __table_args__ = UniqueConstraint('topic', 'group_id'),
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    topic = Column(String, ForeignKey('topic.topic', onupdate="CASCADE", ondelete="RESTRICT"), nullable=False)
+    group_id = Column(Integer, ForeignKey('groups.id', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    created = Column(DateTime, server_default=utcnow())
+    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())

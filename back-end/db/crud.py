@@ -169,6 +169,10 @@ def set_group_rules_ids(db: Session, group_id: int, rules_ids: List[int]) -> Tup
     return True, 'success'
 
 
+def get_topics_of_group(db: Session, group_id: int) -> List[str]:
+    return [x[0] for x in db.query(models.TopicGroup.topic).filter(models.TopicGroup.group_id == group_id).all()]
+
+
 def get_usergroup(db: Session, user_id: int, group_id: int) -> models.UserGroup:
     return db.query(models.UserGroup).filter(and_(models.UserGroup.user_id == user_id, models.UserGroup.group_id == group_id)).first()
 

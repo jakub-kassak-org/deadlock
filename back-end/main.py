@@ -289,6 +289,21 @@ def change_ruleset_of_group(group_id: int, include_rules_ids: List[int], exclude
     }
 
 
+def exists_group(db: Session, group_id: int):
+    if not crud.get_group_by_id(db, group_id):
+        raise HTTPException(status_code=400, detail=f"Group with id {group_id} does not exists.")
+
+
+@app.get("/groups/{group_id}/topics/")
+def get_topics_of_group(group_id: int, db: Session = Depends(get_db),
+                        current_user: User = Depends(get_current_active_user)):
+    exists_group(db, group_id)
+    return {
+        'id': group_id,
+        'topics': crud.get_topics_of_group(db, group_id)
+    }
+
+
 @app.post("/usergroup/add/", response_model=UserGroup)
 def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_id(db=db, user_id=user_id)
