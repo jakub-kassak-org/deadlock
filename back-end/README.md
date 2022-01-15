@@ -844,6 +844,29 @@ Creates new topic.
 Deletes topic from server. Topic can not be assigned to any group or notification, otherwise deletion will fail.
 
 
+#### `[POST]/notify/`
+It creates new notification, assigns this notification to users in groups, which are subscribed to topic of the 
+notification. If user has email, it also sends an email with this notification.
+
+Example request body:
+```json
+{
+  "title": "title",
+  "message": "message",
+  "topic": "topic1"
+}
+```
+
+Success response example:
+```json
+{
+  "success": true,
+  "count": 0
+}
+```
+
+If success is `true` notification was successfully created and assigned to users. Count is the amount of email sent if 
+positive.
 
 ## Scripts
 

@@ -34,6 +34,7 @@ class UserBase(BaseModel):
     first_name: str
     last_name: str
     is_staff: bool
+    email: Optional[str]
 
     class Config:
         orm_mode = True
@@ -217,3 +218,8 @@ class LogOut(BaseModel):
     class Config:
         orm_mode = True
 
+
+class NotificationIn(BaseModel):
+    title: str
+    message: str
+    topic: str

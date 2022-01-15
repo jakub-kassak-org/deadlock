@@ -18,12 +18,13 @@ class User(Base):
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
     is_staff = Column(Boolean, nullable=False, default=False)
+    email = Column(String, nullable=True)
     hashed_password = Column(String, nullable=True)
     disabled = Column(Boolean, default=False)
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())  # TODO Check whether updated is correct
-
-    groups = relationship('UserGroup')
+    groups = relationship('Group', secondary='user_group')
+    notifications = relationship('Notification', secondary='notification_user')
 
 
 class Group(Base):
@@ -161,5 +162,28 @@ class TopicGroup(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     topic = Column(String, ForeignKey('topic.topic', onupdate="CASCADE", ondelete="RESTRICT"), nullable=False)
     group_id = Column(Integer, ForeignKey('groups.id', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    created = Column(DateTime, server_default=utcnow())
+    updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())
+
+
+class Notification(Base):
+    __tablename__ = 'notification'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String, nullable=False)
+    message = Column(String, nullable=False)
+    topic = Column(String, ForeignKey('topic.topic', onupdate="CASCADE", ondelete="RESTRICT"), nullable=False)
+    created = Column(DateTime, nullable=False, server_default=utcnow())
+    users = relationship('User', secondary='notification_user')
+
+
+class NotificationUser(Base):
+    __tablename__ = 'notification_user'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    notification_id = Column(Integer, ForeignKey('notification.id', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id', onupdate="CASCADE", ondelete="CASCADE"))
+    sent = Column(Boolean, nullable=False, server_default='False')
+    viewed = Column(Boolean, nullable=False, server_default='False')
     created = Column(DateTime, server_default=utcnow())
     updated = Column(DateTime, server_default=utcnow(), onupdate=utcnow())

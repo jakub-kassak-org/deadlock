@@ -1,3 +1,7 @@
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -7,7 +11,7 @@ from db import models, crud
 from db.database import SessionLocal, engine
 from db.schemas import *
 
-from typing import Optional, Dict, List
+from typing import Optional, List
 
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -699,3 +703,35 @@ def delete_topic(topic: str, db: Session = Depends(get_db), current_user: User =
     if not crud.delete_topic(db, topic):
         raise HTTPException(status_code=400, detail=f"Topic '{topic}' is assigned to some group or notification")
     return {"success": True}
+
+
+@app.post("/notify/")
+def notify(data: NotificationIn, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    notification = crud.create_notification(db, data)
+    # print(notification)
+    if not notification:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Topic '{data.topic}' does not exist, therefore notification can't be created."
+        )
+    if not crud.add_notification_to_users(db, notification.id, notification.topic):
+        return {"success": False, "count": 0}
+    ids_mails = crud.get_user_ids_mails_by_topic(db, data.topic)
+    # print(ids_mails)
+    to = [x[1] for x in ids_mails]
+    if len(to) == 0:
+        return {"success": True, "count": 0}
+    smtp = smtplib.SMTP('smtp.gmail.com', 587)
+    smtp.ehlo()
+    smtp.starttls()
+    login = "deadlock.uniba@gmail.com"
+    password = "fravoxbmpejevahv"
+    smtp.login(login, password)
+    msg = MIMEMultipart()
+    msg['Subject'] = data.title
+    msg.attach(MIMEText(data.message))
+    smtp.sendmail(from_addr=login,
+                  to_addrs=to, msg=msg.as_string())
+    smtp.quit()
+    sent = crud.update_sent_notifications(db, notification.id, [x[0] for x in ids_mails])
+    return {"success": True, "count": len(to) if sent else -1}

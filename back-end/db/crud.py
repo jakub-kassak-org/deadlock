@@ -1,9 +1,8 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func, delete
+from sqlalchemy import func, delete, insert, select, update
 from typing import List, Tuple, Optional, Set
-import logging
-
 from sqlalchemy.exc import IntegrityError
+import logging
 
 from . import models, schemas
 from db.models import *
@@ -34,7 +33,8 @@ def create_user(db: Session, user_base: schemas.UserBase) -> models.User:
         username=user_base.username,
         first_name=user_base.first_name,
         last_name=user_base.last_name,
-        is_staff=user_base.is_staff
+        is_staff=user_base.is_staff,
+        email=user_base.email
     )
     db.add(user)
     db.commit()
@@ -58,7 +58,8 @@ def update_user(db: Session, user_id: int, data: schemas.UserBase) -> Tuple[bool
             'username': data.username,
             'first_name': data.first_name,
             'last_name': data.last_name,
-            'is_staff': data.is_staff
+            'is_staff': data.is_staff,
+            'email': data.email
         })
         db.commit()
     except Exception as e:
@@ -68,20 +69,20 @@ def update_user(db: Session, user_id: int, data: schemas.UserBase) -> Tuple[bool
 
 
 # crud.add_nonsuperuser_cards(cards)
-def add_nonsuperuser_cards(db: Session, cards: List[str]) -> bool:
-    old_users = db.query(models.User).filter(models.User.card.in_(cards)).all()
-    old_cards = set([u.card for u in old_users])
-    new_cards = set(cards) - old_cards
-    for card in new_cards:
-        user = models.User(card=card)
-        db.add(user)
-    try:
-        if new_cards:
-            db.commit()
-    except Exception as e:
-        runtime_logger.exception(e)
-        return False
-    return True
+# def add_nonsuperuser_cards(db: Session, cards: List[str]) -> bool:
+#     old_users = db.query(models.User).filter(models.User.card.in_(cards)).all()
+#     old_cards = set([u.card for u in old_users])
+#     new_cards = set(cards) - old_cards
+#     for card in new_cards:
+#         user = models.User(card=card)
+#         db.add(user)
+#     try:
+#         if new_cards:
+#             db.commit()
+#     except Exception as e:
+#         runtime_logger.exception(e)
+#         return False
+#     return True
 
 
 def create_group(db: Session, group: schemas.GroupCreate) -> models.Group:
@@ -546,4 +547,60 @@ def delete_topic(db: Session, topic: str):
         return True
     except IntegrityError as e:
         runtime_logger.info(e)
+        return False
+
+
+def create_notification(db: Session, data: schemas.NotificationIn) -> Optional[Notification]:
+    try:
+        notification: Notification = Notification(
+            title=data.title,
+            message=data.message,
+            topic=data.topic
+        )
+        db.add(notification)
+        db.commit()
+        return notification
+    except IntegrityError as e:
+        runtime_logger.info(e)
+        return None
+
+
+def add_notification_to_users(db: Session, n_id: int, topic: str):
+    try:
+        sel = select([n_id, UserGroup.user_id])\
+                .select_from(UserGroup.__table__
+                             .join(TopicGroup, TopicGroup.group_id == UserGroup.group_id))\
+                .where(TopicGroup.topic == topic)
+        db.execute(
+            insert(NotificationUser)
+                .from_select(['notification_id', 'user_id'], sel, include_defaults=False)
+        )
+        db.commit()
+        return True
+    except Exception as e:
+        runtime_logger.exception(e)
+        return False
+
+
+def get_user_ids_mails_by_topic(db: Session, topic: str) -> List[Tuple[int, str]]:
+    return db.query(User.id, User.email)\
+        .join(UserGroup)\
+        .join(TopicGroup, TopicGroup.group_id == UserGroup.group_id)\
+        .filter(TopicGroup.topic == topic,
+                User.email != None,
+                User.is_staff == True).all()
+
+
+def update_sent_notifications(db: Session, n_id: int, u_ids: List[int]) -> bool:
+    try:
+        db.execute(
+            update(NotificationUser)
+                .where(NotificationUser.notification_id == n_id)
+                .where(NotificationUser.user_id.in_(u_ids))
+                .values(sent=True)
+        )
+        db.commit()
+        return True
+    except Exception as e:
+        runtime_logger.exception(e)
         return False
