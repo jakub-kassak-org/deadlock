@@ -359,6 +359,21 @@ Success response example:
 ```
 
 
+#### `[POST]/groups/{group_id}/topics/`
+Assign topics to group.
+
+Success response example:
+```json
+{
+  "updated": true,
+  "added_topics": [
+    "topic1"
+  ],
+  "id": 2
+}
+```
+
+
 #### `[GET] /groups/by_ap_type_and_time_spec/`
 Given `ap_type_id` and `time_spec_id` (mandatory query parameters),
 returns a list of group names, that use access points
@@ -800,6 +815,7 @@ Same as before, but counts only logs from access point with IP `ap_ip_addr`.
 
 #### `[GET]/topics/`
 Returns notification topics.
+
 Success response example:
 ```json
 {

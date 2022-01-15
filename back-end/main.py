@@ -304,6 +304,22 @@ def get_topics_of_group(group_id: int, db: Session = Depends(get_db),
     }
 
 
+@app.post("/groups/{group_id}/topics/")
+def add_topics_of_group(group_id: int, topics: List[str], db: Session = Depends(get_db),
+                        current_user: User = Depends(get_current_active_user)):
+    exists_group(db, group_id)
+    if not crud.exists_all_topics(db, topics):
+        raise HTTPException(status_code=400, detail=f"Not all topics exists.")
+    current_topics = crud.get_topics_of_group(db, group_id)
+    topics = list(set(topics) - set(current_topics))
+    updated = crud.add_topics_of_group(db, group_id, list(topics))
+    return {
+        'updated': updated,
+        'added_topics': topics if updated else [],
+        'id': group_id
+    }
+
+
 @app.post("/usergroup/add/", response_model=UserGroup)
 def add_user_to_group(user_id: int, group_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     db_user = crud.get_user_by_id(db=db, user_id=user_id)

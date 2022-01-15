@@ -173,6 +173,17 @@ def get_topics_of_group(db: Session, group_id: int) -> List[str]:
     return [x[0] for x in db.query(models.TopicGroup.topic).filter(models.TopicGroup.group_id == group_id).all()]
 
 
+def add_topics_of_group(db: Session, group_id: int, topics: List[str]) -> bool:
+    try:
+        for t in topics:
+            db.add(models.TopicGroup(topic=t, group_id=group_id))
+        db.commit()
+    except Exception as e:
+        runtime_logger.exception(e)
+        return False
+    return True
+
+
 def get_usergroup(db: Session, user_id: int, group_id: int) -> models.UserGroup:
     return db.query(models.UserGroup).filter(and_(models.UserGroup.user_id == user_id, models.UserGroup.group_id == group_id)).first()
 
@@ -499,6 +510,13 @@ def get_topics(db: Session, offset: int, limit: int):
 
 def exists_topic(db: Session, topic: str) -> Topic:
     return db.query(Topic).filter(Topic.topic == topic).scalar()
+
+
+def exists_all_topics(db: Session, topics: List[str]) -> bool:
+    for t in topics:
+        if not db.query(Topic).filter(Topic.topic == t).scalar():
+            return False
+    return True
 
 
 def create_topic(db: Session, topic: str):
