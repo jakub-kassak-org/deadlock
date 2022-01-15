@@ -708,6 +708,7 @@ Success response example:
 ]
 ```
 
+
 #### `[GET]/log/`
 Get logs with `levelno` greater or equal then specified.
 ```json
@@ -737,6 +738,7 @@ Get logs with `levelno` greater or equal then specified.
 ]
 ```
 
+
 #### `[POST]/log/`
 Endpoint for logging from controllers.
 Example request body:
@@ -757,6 +759,7 @@ Success response example:
 }
 ```
 
+
 #### `[GET]/log/count/`
 Get count of logs with `levelno` greater or equal then specified from `time_from` to `time_to`  
 Example params: `?levelno=30&time_from=2020-01-01T00%3A00%3A00&time_to=2022-01-15T15%3A46%3A22.944935`
@@ -771,8 +774,10 @@ Success response example:
 }
 ```
 
+
 #### `[GET]/log/count/`
 Same as before, but counts only logs from server.
+
 
 #### `[GET]/log/count/{ap_ip_addr}`
 Same as before, but counts only logs from access point with IP `ap_ip_addr`.
@@ -788,6 +793,7 @@ Success response example:
   ]
 }
 ```
+
 
 
 ## Scripts
