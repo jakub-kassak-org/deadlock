@@ -213,14 +213,6 @@ def assign_ap_type_to_user(user_id: int, ap_type_id: int, timespec: TimeSpecBase
     return {'success': success}
 
 
-@app.post("/users/update_db/")
-def update_users_database(data: Dict[str, List[str]], db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    updated = crud.add_nonsuperuser_cards(db=db, cards=data['cards'])
-    return {
-        'was_updated': updated
-    }
-
-
 @app.get("/groups/by_ap_type_and_time_spec/")
 def get_groups_by_ap_type_and_time_spec(ap_type_id: int, time_spec_id: int, db: Session = Depends(get_db),
                                               current_user: User = Depends(get_current_active_user)):
